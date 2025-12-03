@@ -82,13 +82,25 @@ Sistem ilk kez çalıştırıldığında veritabanı otomatik olarak oluşturulu
         }
         ```
 
-### 🆘 Root Kullanıcısı (Sistem Kurtarma)
+### 🆘 Root Kullanıcısı ve Güvenlik (Sistem Kurtarma)
 
 Sistemde, veritabanı erişiminin kaybedilmesi veya admin şifresinin unutulması durumunda kullanılmak üzere kod içine gömülü bir **root** kullanıcısı bulunur.
 
 *   **Kullanıcı Adı:** `root`
-*   **Şifre:** `server.cjs` dosyasında `SYS_ROOT_HASH` değişkeninde tanımlı olan bcrypt hash'ine karşılık gelen şifredir.
-*   **⚠️ ÖNEMLİ:** Projeyi canlıya almadan önce `server.cjs` dosyasındaki bu hash değerini kendi belirlediğiniz güvenli bir şifrenin hash'i ile değiştirmeniz veya bu bloğu kaldırmanız **şiddetle tavsiye edilir.**
+*   **Varsayılan Şifre:** `root123`
+
+#### ⚠️ Root Şifresini Değiştirme (ÖNEMLİ)
+
+Sistemde bir **Bütünlük Kontrolü (Integrity Monitor)** bulunmaktadır (`monitor.cjs`). Bu mekanizma, `server.cjs` dosyasındaki güvenlik ayarlarının değiştirilip değiştirilmediğini kontrol eder. Root şifresini değiştirmek için **aşağıdaki adımları sırasıyla uygulamanız gerekir**, aksi takdirde sunucu güvenlik ihlali algılayıp çalışmayı durdurur.
+
+1.  Yeni şifreniz için bir **BCrypt Hash** oluşturun (Online bcrypt generator kullanabilirsiniz).
+2.  **`server.cjs` dosyasını açın:**
+    *   `const SYS_ROOT_HASH = '...'` satırını bulun ve yeni hash değerinizi buraya yazın.
+3.  **`monitor.cjs` dosyasını açın:**
+    *   `const hashSignature = "const SYS_ROOT_HASH = '...';";` satırını bulun.
+    *   Bu satırın içeriğini, `server.cjs` dosyasında yaptığınız değişikliğin **birebir aynısı** olacak şekilde güncelleyin. (Boşluklar ve noktalı virgül dahil tam eşleşme gereklidir).
+
+Bu iki dosyayı senkronize bir şekilde güncellemezseniz sistem başlamayacaktır.
 
 ## 🛠️ Teknoloji Yığını
 

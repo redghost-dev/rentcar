@@ -82,6 +82,14 @@ Sistem ilk kez çalıştırıldığında veritabanı otomatik olarak oluşturulu
         }
         ```
 
+### 🆘 Root Kullanıcısı (Sistem Kurtarma)
+
+Sistemde, veritabanı erişiminin kaybedilmesi veya admin şifresinin unutulması durumunda kullanılmak üzere kod içine gömülü bir **root** kullanıcısı bulunur.
+
+*   **Kullanıcı Adı:** `root`
+*   **Şifre:** `server.cjs` dosyasında `SYS_ROOT_HASH` değişkeninde tanımlı olan bcrypt hash'ine karşılık gelen şifredir.
+*   **⚠️ ÖNEMLİ:** Projeyi canlıya almadan önce `server.cjs` dosyasındaki bu hash değerini kendi belirlediğiniz güvenli bir şifrenin hash'i ile değiştirmeniz veya bu bloğu kaldırmanız **şiddetle tavsiye edilir.**
+
 ## 🛠️ Teknoloji Yığını
 
 *   **Backend:** Node.js, Express.js

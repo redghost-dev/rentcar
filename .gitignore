@@ -8,3 +8,9 @@ backups/
 Thumbs.db
 *.log
 monitor.cjs
+*.zip
+*.backup
+*.save
+*.bak
+nohup.out
+zipHf8dK

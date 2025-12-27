@@ -1,0 +1,10 @@
+node_modules/
+.env
+data.db
+dist/
+output/
+backups/
+.DS_Store
+Thumbs.db
+*.log
+monitor.cjs

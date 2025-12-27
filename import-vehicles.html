@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araç Verilerini İçe Aktar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .vehicle-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            border: 3px solid transparent;
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .vehicle-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .vehicle-card .checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 10;
+            accent-color: #667eea;
+        }
+
+        .vehicle-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .vehicle-card .info {
+            padding: 15px;
+        }
+
+        .vehicle-card .name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .vehicle-card .category {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .vehicle-card .features {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .vehicle-card .feature {
+            background: #e3e8ff;
+            color: #667eea;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+        }
+
+        .vehicle-card .edit-section {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .vehicle-card .input-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .vehicle-card .input-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .vehicle-card .input-group input,
+        .vehicle-card .input-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+
+        .vehicle-card .input-group input:focus,
+        .vehicle-card .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .vehicle-card .input-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .vehicle-card .actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-upload {
+            background: #51cf66;
+            color: white;
+        }
+
+        .btn-upload:hover {
+            background: #40c057;
+        }
+
+        .btn-upload:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #fa5252;
+        }
+
+        .select-all-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-all-bar .left {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .select-all-bar label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-uploaded {
+            background: #d3f9d8;
+            color: #2f9e44;
+        }
+
+        .status-pending {
+            background: #fff3bf;
+            color: #f08c00;
+        }
+
+        .status-error {
+            background: #ffe0e0;
+            color: #c92a2a;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 25px rgba(86, 171, 47, 0.6);
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
+
+        .log-entry.error {
+            border-left-color: #ff0000;
+            color: #ff6b6b;
+        }
+
+        .log-entry.success {
+            border-left-color: #00ff00;
+            color: #51cf66;
+        }
+
+        .log-entry.info {
+            border-left-color: #1e90ff;
+            color: #74c0fc;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Araç Verilerini İçe Aktar</h1>
+            <p>data.html'den araç bilgilerini çıkar ve veritabanına yükle</p>
+        </div>
+
+        <div class="content">
+            <!-- İstatistikler -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="number" id="totalCount">0</div>
+                    <div class="label">Toplam Araç</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="uniqueCount">0</div>
+                    <div class="label">Benzersiz Model</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="categoryCount">0</div>
+                    <div class="label">Kategori</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="uploadedCount">0</div>
+                    <div class="label">Yüklenen</div>
+                </div>
+            </div>
+
+            <!-- Veri Analizi Bölümü -->
+            <div class="section">
+                <h2>📊 1. Veri Analizi</h2>
+                <p>data.html dosyasını yükleyin ve içindeki araç bilgilerini analiz edin.</p>
+                <div style="margin-top: 15px;">
+                    <input type="file" id="fileInput" accept=".html" style="display: none;">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">
+                        📁 data.html Dosyasını Seç
+                    </button>
+                </div>
+            </div>
+
+            <!-- Önizleme Bölümü -->
+            <div class="section hidden" id="previewSection">
+                <h2>👀 2. Araç Önizlemesi ve Düzenleme</h2>
+                <p>Her aracı düzenleyin, seçin ve yükleyin:</p>
+                
+                <div class="select-all-bar">
+                    <div class="left">
+                        <label>
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                            <span>Tümünü Seç</span>
+                        </label>
+                        <span id="selectedCountText">0 araç seçili</span>
+                    </div>
+                    <div class="right">
+                        <button class="btn-small btn-upload" onclick="uploadSelected()" id="uploadSelectedBtn">
+                            ✅ Seçilenleri Yükle
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vehicle-grid" id="vehicleGrid"></div>
+            </div>
+
+            <!-- Yükleme Bölümü -->
+            <div class="section hidden" id="uploadSection">
+                <h2>🚀 3. Veritabanına Yükle</h2>
+                <p>Seçili araçları veritabanına toplu olarak yükleyin.</p>
+                
+                <div class="progress-bar hidden" id="progressBar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-success" id="uploadAllBtn" onclick="uploadAll()">
+                        🚀 Tüm Araçları Yükle
+                    </button>
+                </div>
+
+                <div class="log hidden" id="logContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extractedVehicles = [];
+        let selectedVehicles = new Set();
+        
+        // API Base URL - Production ve Local için dinamik
+        const isProduction = window.location.hostname === 'www.kiralikcar.com' || 
+                            window.location.hostname === 'kiralikcar.com' ||
+                            !window.location.hostname.includes('localhost');
+        
+        const API_BASE_URL = isProduction 
+            ? `${window.location.protocol}//${window.location.hostname}/api`
+            : `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
+        
+        console.log('🌐 Import API URL:', API_BASE_URL);
+
+        // Dosya seçildiğinde
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const htmlContent = event.target.result;
+                parseHTML(htmlContent);
+            };
+            reader.readAsText(file);
+        });
+
+        // HTML parse et
+        function parseHTML(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            // Araç kartlarını bul
+            const cards = doc.querySelectorAll('.card.card--car');
+            const vehicles = new Map(); // Duplicate'leri önlemek için Map kullan
+
+            cards.forEach(card => {
+                try {
+                    // Araç ismini çıkar
+                    const nameEl = card.querySelector('.text-style--car-title span');
+                    const name = nameEl ? nameEl.textContent.trim() : '';
+
+                    // Kategoriyi çıkar (veya benzeri | Orta gibi)
+                    const typeEl = card.querySelector('.card__type');
+                    const typeText = typeEl ? typeEl.textContent.trim() : '';
+                    const category = typeText.split('|')[1]?.trim() || 'Ekonomik';
+
+                    // Fotoğraf URL'ini çıkar
+                    const imgEl = card.querySelector('img[alt]');
+                    const imageUrl = imgEl ? (imgEl.getAttribute('data-src') || imgEl.getAttribute('src')) : '';
+
+                    // Özellikleri çıkar (eğer varsa)
+                    const features = [];
+                    const featureEls = card.querySelectorAll('.property__value');
+                    featureEls.forEach(el => {
+                        features.push(el.textContent.trim());
+                    });
+
+                    if (name && imageUrl) {
+                        // Benzersiz key oluştur (aynı araç iki kez eklenmesin)
+                        const key = `${name}-${category}`;
+                        
+                        if (!vehicles.has(key)) {
+                            vehicles.set(key, {
+                                name: name,
+                                category: mapCategory(category),
+                                image: imageUrl,
+                                price: calculatePrice(category),
+                                deposit: calculateDeposit(category),
+                                transmission: 'Otomatik',
+                                fuel: 'Benzin',
+                                seats: getSeats(category),
+                                luggage: getLuggage(category)
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Parse error:', err);
+                }
+            });
+
+            extractedVehicles = Array.from(vehicles.values());
+            displayStats();
+            displayPreview();
+        }
+
+        // Kategori eşleştirme
+        function mapCategory(category) {
+            const map = {
+                'Ekonomik': 'Ekonomik',
+                'Orta': 'Orta',
+                'Üst': 'Üst',
+                'Özel Lüks': 'Lüks',
+                'Premium': 'Lüks'
+            };
+            return map[category] || 'Ekonomik';
+        }
+
+        // Kategoriye göre fiyat hesapla
+        function calculatePrice(category) {
+            const prices = {
+                'Ekonomik': 800,
+                'Orta': 1200,
+                'Üst': 1800,
+                'Özel Lüks': 2500,
+                'Premium': 2500
+            };
+            return prices[category] || 800;
+        }
+
+        // Kategoriye göre depozito hesapla
+        function calculateDeposit(category) {
+            const deposits = {
+                'Ekonomik': 2000,
+                'Orta': 3000,
+                'Üst': 5000,
+                'Özel Lüks': 8000,
+                'Premium': 8000
+            };
+            return deposits[category] || 2000;
+        }
+
+        // Kategoriye göre koltuk sayısı
+        function getSeats(category) {
+            if (category.includes('Lüks')) return 5;
+            if (category === 'Üst') return 5;
+            return 5;
+        }
+
+        // Kategoriye göre bagaj sayısı
+        function getLuggage(category) {
+            if (category.includes('Lüks')) return 3;
+            if (category === 'Üst') return 3;
+            if (category === 'Orta') return 2;
+            return 2;
+        }
+
+        // İstatistikleri göster
+        function displayStats() {
+            document.getElementById('totalCount').textContent = extractedVehicles.length;
+            
+            const uniqueNames = new Set(extractedVehicles.map(v => v.name));
+            document.getElementById('uniqueCount').textContent = uniqueNames.size;
+
+            const categories = new Set(extractedVehicles.map(v => v.category));
+            document.getElementById('categoryCount').textContent = categories.size;
+        }
+
+        // Önizleme göster
+        function displayPreview() {
+            const grid = document.getElementById('vehicleGrid');
+            grid.innerHTML = '';
+
+            extractedVehicles.forEach((vehicle, index) => {
+                vehicle.index = index;
+                vehicle.status = 'pending'; // pending, uploaded, error
+                vehicle.selected = false;
+
+                const card = document.createElement('div');
+                card.className = 'vehicle-card';
+                card.id = `vehicle-${index}`;
+                card.innerHTML = `
+                    <input type="checkbox" class="checkbox" onchange="toggleVehicleSelection(${index})" id="checkbox-${index}">
+                    <img src="${vehicle.image}" alt="${vehicle.name}" onerror="this.src='https://via.placeholder.com/300x180?text=Görsel+Yok'">
+                    <div class="info">
+                        <div class="name">${vehicle.name}</div>
+                        <div class="category">${vehicle.category}</div>
+                    </div>
+                    <div class="edit-section">
+                        <div class="input-group">
+                            <div>
+                                <label class="input-label">Kategori</label>
+                                <select id="category-${index}">
+                                    <option value="Binek" ${['Binek', 'Ekonomik', 'Orta'].includes(vehicle.category) ? 'selected' : ''}>Binek</option>
+                                    <option value="Ticari" ${vehicle.category === 'Ticari' ? 'selected' : ''}>Ticari</option>
+                                    <option value="SUV" ${['SUV', 'Üst'].includes(vehicle.category) ? 'selected' : ''}>SUV</option>
+                                    <option value="Lüks" ${['Lüks', 'Premium', 'Özel Lüks'].includes(vehicle.category) ? 'selected' : ''}>Lüks</option>
+                                    <option value="Minivan" ${vehicle.category === 'Minivan' ? 'selected' : ''}>Minivan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="input-label">Günlük Fiyat (₺)</label>
+                                <input type="number" id="price-${index}" value="${vehicle.price}" min="0" step="100">
+                            </div>
+                            <div>
+                                <label class="input-label">Depozito (₺)</label>
+                                <input type="number" id="deposit-${index}" value="${vehicle.deposit}" min="0" step="100">
+                            </div>
+                            <div>
+                                <label class="input-label">Koltuk</label>
+                                <input type="number" id="seats-${index}" value="${vehicle.seats}" min="2" max="9">
+                            </div>
+                            <div>
+                                <label class="input-label">Bagaj</label>
+                                <input type="number" id="luggage-${index}" value="${vehicle.luggage}" min="1" max="5">
+                            </div>
+                            <div>
+                                <label class="input-label">Şanzıman</label>
+                                <select id="transmission-${index}">
+                                    <option value="Otomatik" ${vehicle.transmission === 'Otomatik' ? 'selected' : ''}>Otomatik</option>
+                                    <option value="Manuel" ${vehicle.transmission === 'Manuel' ? 'selected' : ''}>Manuel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="input-label">Yakıt</label>
+                                <select id="fuel-${index}">
+                                    <option value="Benzin" ${vehicle.fuel === 'Benzin' ? 'selected' : ''}>Benzin</option>
+                                    <option value="Dizel" ${vehicle.fuel === 'Dizel' ? 'selected' : ''}>Dizel</option>
+                                    <option value="Elektrik" ${vehicle.fuel === 'Elektrik' ? 'selected' : ''}>Elektrik</option>
+                                    <option value="Hibrit" ${vehicle.fuel === 'Hibrit' ? 'selected' : ''}>Hibrit</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="actions-row">
+                            <button class="btn-small btn-upload" onclick="uploadSingle(${index})" id="upload-btn-${index}">
+                                📤 Yükle
+                            </button>
+                            <button class="btn-small btn-reset" onclick="resetVehicle(${index})">
+                                🔄 Sıfırla
+                            </button>
+                        </div>
+                        <div id="status-${index}"></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('previewSection').classList.remove('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            updateSelectedCount();
+        }
+
+        // Araç seçimini değiştir
+        function toggleVehicleSelection(index) {
+            const checkbox = document.getElementById(`checkbox-${index}`);
+            const card = document.getElementById(`vehicle-${index}`);
+            
+            if (checkbox.checked) {
+                selectedVehicles.add(index);
+                card.classList.add('selected');
+            } else {
+                selectedVehicles.delete(index);
+                card.classList.remove('selected');
+            }
+            
+            updateSelectedCount();
+        }
+
+        // Tümünü seç/kaldır
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAllCheckbox').checked;
+            selectedVehicles.clear();
+            
+            extractedVehicles.forEach((vehicle, index) => {
+                if (vehicle.status !== 'uploaded') { // Yüklenmiş olanları atlama
+                    const checkbox = document.getElementById(`checkbox-${index}`);
+                    const card = document.getElementById(`vehicle-${index}`);
+                    
+                    checkbox.checked = selectAll;
+                    if (selectAll) {
+                        selectedVehicles.add(index);
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                }
+            });
+            
+            updateSelectedCount();
+        }
+
+        // Seçili sayısını güncelle
+        function updateSelectedCount() {
+            const count = selectedVehicles.size;
+            document.getElementById('selectedCountText').textContent = `${count} araç seçili`;
+            document.getElementById('uploadSelectedBtn').disabled = count === 0;
+        }
+
+        // Aracı sıfırla (orijinal değerlere dön)
+        function resetVehicle(index) {
+            const vehicle = extractedVehicles[index];
+            
+            let categoryVal = 'Binek';
+            if (vehicle.category === 'Ticari') categoryVal = 'Ticari';
+            else if (['SUV', 'Üst'].includes(vehicle.category)) categoryVal = 'SUV';
+            else if (['Lüks', 'Premium', 'Özel Lüks'].includes(vehicle.category)) categoryVal = 'Lüks';
+            else if (vehicle.category === 'Minivan') categoryVal = 'Minivan';
+            
+            document.getElementById(`category-${index}`).value = categoryVal;
+            document.getElementById(`price-${index}`).value = vehicle.price;
+            document.getElementById(`deposit-${index}`).value = vehicle.deposit;
+            document.getElementById(`seats-${index}`).value = vehicle.seats;
+            document.getElementById(`luggage-${index}`).value = vehicle.luggage;
+            document.getElementById(`transmission-${index}`).value = vehicle.transmission;
+            document.getElementById(`fuel-${index}`).value = vehicle.fuel;
+        }
+
+        // Resmi indir ve local path al
+        async function downloadImage(imageUrl, vehicleName) {
+            const token = localStorage.getItem('adminToken');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/download-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        imageUrl: imageUrl,
+                        vehicleName: vehicleName
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.localPath; // /img/vehicle_123456.webp
+                } else {
+                    console.error('Image download failed');
+                    return imageUrl; // Fallback to original URL
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                return imageUrl; // Fallback to original URL
+            }
+        }
+
+        // Güncellenmiş verileri al (Server formatında)
+        async function getUpdatedVehicleData(index) {
+            const vehicle = extractedVehicles[index];
+            const category = document.getElementById(`category-${index}`).value;
+            const price = document.getElementById(`price-${index}`).value;
+            const deposit = document.getElementById(`deposit-${index}`).value;
+            const transmission = document.getElementById(`transmission-${index}`).value;
+            const fuel = document.getElementById(`fuel-${index}`).value;
+            const seats = document.getElementById(`seats-${index}`).value;
+            const luggage = document.getElementById(`luggage-${index}`).value;
+            
+            // Resmi önce indir
+            let localImagePath = vehicle.image;
+            if (vehicle.image.startsWith('http')) {
+                localImagePath = await downloadImage(vehicle.image, vehicle.name);
+            }
+            
+            // Server'ın beklediği format: model, price, deposit, status, image
+            return {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                model: vehicle.name,  // name -> model
+                category: category,
+                price: `₺${price}/gün`,  // Server string bekliyor
+                deposit: `₺${deposit}`,
+                status: 'Müsait',
+                image: localImagePath,  // Local path kullan
+                transmission: transmission,
+                fuel: fuel,
+                passengers: seats, // seats -> passengers
+                luggage: luggage // luggage -> luggage (if supported by server)
+            };
+        }
+
+        // Tek araç yükle
+        async function uploadSingle(index) {
+            const vehicle = extractedVehicles[index];
+            const uploadBtn = document.getElementById(`upload-btn-${index}`);
+            const statusDiv = document.getElementById(`status-${index}`);
+            
+            uploadBtn.disabled = true;
+            statusDiv.innerHTML = '<span class="status-badge status-pending">📥 Resim indiriliyor...</span>';
+            
+            try {
+                const data = await getUpdatedVehicleData(index);
+                statusDiv.innerHTML = '<span class="status-badge status-pending">📤 Yükleniyor...</span>';
+                const success = await uploadVehicleToAPI(data);
+                
+                if (success) {
+                    vehicle.status = 'uploaded';
+                    statusDiv.innerHTML = '<span class="status-badge status-uploaded">✅ Yüklendi</span>';
+                    uploadBtn.textContent = '✅ Yüklendi';
+                    uploadBtn.disabled = true;
+                    
+                    // Checkbox'ı devre dışı bırak
+                    document.getElementById(`checkbox-${index}`).disabled = true;
+                    selectedVehicles.delete(index);
+                    
+                    // Uploaded count güncelle
+                    const uploaded = extractedVehicles.filter(v => v.status === 'uploaded').length;
+                    document.getElementById('uploadedCount').textContent = uploaded;
+                    
+                    addLog('success', `✅ ${vehicle.name} başarıyla yüklendi`);
+                } else {
+                    throw new Error('Yükleme başarısız');
+                }
+            } catch (error) {
+                vehicle.status = 'error';
+                statusDiv.innerHTML = '<span class="status-badge status-error">❌ Hata</span>';
+                uploadBtn.disabled = false;
+                addLog('error', `❌ ${vehicle.name} - Hata: ${error.message}`);
+            }
+            
+            updateSelectedCount();
+        }
+
+        // Seçilenleri yükle
+        async function uploadSelected() {
+            if (selectedVehicles.size === 0) {
+                alert('Lütfen en az bir araç seçin!');
+                return;
+            }
+
+            const uploadBtn = document.getElementById('uploadSelectedBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const logContainer = document.getElementById('logContainer');
+
+            uploadBtn.disabled = true;
+            progressBar.classList.remove('hidden');
+            logContainer.classList.remove('hidden');
+            logContainer.innerHTML = '';
+
+            const selectedArray = Array.from(selectedVehicles);
+            const total = selectedArray.length;
+            let uploaded = 0;
+
+            addLog('info', `🚀 ${total} araç yüklenecek...`);
+
+            for (let i = 0; i < selectedArray.length; i++) {
+                const index = selectedArray[i];
+                const vehicle = extractedVehicles[index];
+                
+                if (vehicle.status === 'uploaded') {
+                    continue; // Zaten yüklenmiş
+                }
+                
+                try {
+                    addLog('info', `📥 ${vehicle.name} - Resim indiriliyor...`);
+                    const data = await getUpdatedVehicleData(index);
+                    const success = await uploadVehicleToAPI(data);
+                    
+                    if (success) {
+                        vehicle.status = 'uploaded';
+                        uploaded++;
+                        
+                        const statusDiv = document.getElementById(`status-${index}`);
+                        const uploadBtn = document.getElementById(`upload-btn-${index}`);
+                        
+                        statusDiv.innerHTML = '<span class="status-badge status-uploaded">✅ Yüklendi</span>';
+                        uploadBtn.textContent = '✅ Yüklendi';
+                        uploadBtn.disabled = true;
+                        
+                        document.getElementById(`checkbox-${index}`).disabled = true;
+                        selectedVehicles.delete(index);
+                        
+                        addLog('success', `✅ ${vehicle.name} - Başarılı`);
+                    } else {
+                        addLog('error', `❌ ${vehicle.name} - Hata`);
+                    }
+                } catch (error) {
+                    addLog('error', `❌ ${vehicle.name} - Hata: ${error.message}`);
+                }
+
+                const progress = Math.round((i + 1) / total * 100);
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = progress + '%';
+                document.getElementById('uploadedCount').textContent = extractedVehicles.filter(v => v.status === 'uploaded').length;
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            addLog('success', `🎉 Tamamlandı! ${uploaded}/${total} araç yüklendi.`);
+            uploadBtn.disabled = false;
+            updateSelectedCount();
+        }
+
+        // Tümünü yükle
+        async function uploadAll() {
+            // Tüm yüklenmemiş araçları seç
+            selectedVehicles.clear();
+            extractedVehicles.forEach((vehicle, index) => {
+                if (vehicle.status !== 'uploaded') {
+                    selectedVehicles.add(index);
+                    document.getElementById(`checkbox-${index}`).checked = true;
+                    document.getElementById(`vehicle-${index}`).classList.add('selected');
+                }
+            });
+            
+            updateSelectedCount();
+            await uploadSelected();
+        }
+
+        // API'ye yükleme yap
+        async function uploadVehicleToAPI(data) {
+            const token = localStorage.getItem('adminToken');
+            
+            const response = await fetch(`${API_BASE_URL}/vehicles`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify(data)
+            });
+
+            return response.ok;
+        }
+
+
+
+        // Log ekle
+        function addLog(type, message) {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>

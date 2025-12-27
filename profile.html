@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilim - Kiralık Car</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="/src/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        secondary: 'var(--color-primary-dark)',
+                        whatsapp: '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
+    <script type="module">
+        import { applyThemeToDocument, applyContactInfoToDocument } from './src/site-settings.js';
+        applyThemeToDocument(document);
+        applyContactInfoToDocument(document);
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-primary">Kiralık<span class="text-gray-800">Car</span></a>
+            <div class="flex items-center gap-4">
+                <span id="userName" class="text-gray-700 font-medium hidden md:block"></span>
+                <button onclick="logout()" class="text-red-500 hover:text-red-700 font-medium">
+                    <i class="ri-logout-box-r-line align-middle"></i> Çıkış
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-2xl font-bold mb-6">Hesabım</h1>
+
+            <!-- User Info -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-lg font-semibold mb-4 border-b pb-2">Kişisel Bilgiler</h2>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="block text-gray-500">Ad Soyad</span>
+                        <span id="profileName" class="font-medium text-gray-800">...</span>
+                    </div>
+                    <div>
+                        <span class="block text-gray-500">E-posta</span>
+                        <span id="profileEmail" class="font-medium text-gray-800">...</span>
+                    </div>
+                    <div>
+                        <span class="block text-gray-500">Telefon</span>
+                        <span id="profilePhone" class="font-medium text-gray-800">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservations -->
+            <h2 class="text-xl font-bold mb-4">Rezervasyonlarım</h2>
+            <div id="reservationsList" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('customerToken');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('customerToken');
+            localStorage.removeItem('customerUser');
+            window.location.href = '/login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/customers/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error('Bilgiler alınamadı');
+                }
+
+                const data = await response.json();
+                const user = data.user;
+                const reservations = data.reservations;
+
+                // Fill User Info
+                document.getElementById('userName').textContent = user.fullName;
+                document.getElementById('profileName').textContent = user.fullName;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profilePhone').textContent = user.phone || '-';
+
+                // Fill Reservations
+                const list = document.getElementById('reservationsList');
+                if (reservations.length === 0) {
+                    list.innerHTML = '<div class="bg-white p-8 rounded-lg shadow text-center text-gray-500">Henüz bir rezervasyonunuz bulunmuyor.</div>';
+                } else {
+                    list.innerHTML = reservations.map(res => `
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 ${getStatusColor(res.status)}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg">${res.vehicleName || 'Araç Bilgisi Yok'}</h3>
+                                    <span class="text-xs text-gray-500">Rezervasyon No: #${res.id}</span>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold text-white ${getStatusBg(res.status)}">
+                                    ${getStatusText(res.status)}
+                                </span>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="block text-gray-500">Alış</span>
+                                    <span class="font-medium">${formatDate(res.pickupDate)} ${res.pickupTime}</span>
+                                    <span class="block text-xs text-gray-400">${res.pickupLocation}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">İade</span>
+                                    <span class="font-medium">${formatDate(res.dropoffDate)} ${res.dropoffTime}</span>
+                                    <span class="block text-xs text-gray-400">${res.dropoffLocation}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Tutar</span>
+                                    <span class="font-bold text-primary text-lg">${res.totalPrice || '-'}</span>
+                                </div>
+                            </div>
+
+                            ${res.status === 'yeni' ? `
+                                <div class="flex justify-end">
+                                    <a href="/checkout.html?reservationId=${res.id}" class="bg-primary hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition">
+                                        Ödeme Yap
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('reservationsList').innerHTML = '<div class="text-red-500 text-center">Bir hata oluştu.</div>';
+            }
+        });
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'yeni': return 'border-yellow-400';
+                case 'onaylandi': return 'border-green-500';
+                case 'iptal': return 'border-red-500';
+                case 'tamamlandi': return 'border-blue-500';
+                default: return 'border-gray-300';
+            }
+        }
+
+        function getStatusBg(status) {
+            switch(status) {
+                case 'yeni': return 'bg-yellow-400';
+                case 'onaylandi': return 'bg-green-500';
+                case 'iptal': return 'bg-red-500';
+                case 'tamamlandi': return 'bg-blue-500';
+                default: return 'bg-gray-400';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'yeni': return 'Ödeme Bekliyor';
+                case 'onaylandi': return 'Onaylandı';
+                case 'iptal': return 'İptal Edildi';
+                case 'tamamlandi': return 'Tamamlandı';
+                default: return status;
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('tr-TR');
+        }
+    </script>
+</body>
+</html>

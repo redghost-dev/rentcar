@@ -1,0 +1,3368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Yönetici Paneli - Kiralık Car</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 2a6 6 0 0 1 6 6c0 .98-.234 1.903-.646 2.72l-3.46-2a2 2 0 1 0-3.788 0l-3.46 2A5.96 5.96 0 0 1 6 12a6 6 0 0 1 6-6z'/%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        secondary: '#1f2937',
+                        whatsapp: '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
+                    <i class="ri-steering-fill"></i>
+                    <span>Kiralık Car</span>
+                </div>
+                <h1 class="text-2xl font-bold text-secondary">Yönetici Paneli</h1>
+                <p class="text-gray-600 mt-2">Giriş yapın</p>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-secondary font-semibold mb-2">Kullanıcı Adı</label>
+                    <input type="text" id="login-username" placeholder="admin" autocomplete="username" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-secondary font-semibold mb-2">Şifre</label>
+                    <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div id="login-error" class="hidden p-3 bg-red-100 text-red-700 rounded-lg text-sm"></div>
+
+                <button type="submit" class="w-full gradient-primary text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                    Giriş Yap
+                </button>
+            </form>
+
+            <div class="mt-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <p class="text-xs text-gray-700 text-center">
+                    <strong>⚠️ İlk Kurulum:</strong><br>
+                    Henüz admin kullanıcısı yoksa<br>
+                    <a href="/setup.html" class="text-primary font-semibold underline hover:text-blue-700">buradan oluşturun</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside id="mobile-sidebar" class="fixed top-0 left-0 h-full w-64 bg-secondary text-white z-50 transform -translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-between overflow-y-auto shadow-2xl">
+        <div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="text-2xl font-logo font-bold text-primary flex items-center gap-2">
+                        <i class="ri-steering-fill"></i>
+                        <span>Kiralık Car</span>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white">
+                        <i class="ri-close-line text-2xl"></i>
+                    </button>
+                </div>
+                
+                <nav class="space-y-6">
+                    <!-- Genel -->
+                    <div>
+                        <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Genel</div>
+                        <div class="space-y-1">
+                            <a href="#dashboard" onclick="showSection('dashboard', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer bg-gray-700">
+                                <i class="ri-dashboard-2-line text-lg"></i>
+                                <span class="text-sm font-medium">Dashboard</span>
+                            </a>
+                            <a href="#visitors" onclick="showSection('visitors', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-eye-line text-lg"></i>
+                                <span class="text-sm font-medium">Ziyaretçiler</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Araçlar & Rezervasyon -->
+                    <div>
+                        <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Araçlar & Rezervasyon</div>
+                        <div class="space-y-1">
+                            <a href="#vehicles" onclick="showSection('vehicles', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-car-line text-lg"></i>
+                                <span class="text-sm font-medium">Araç Yönetimi</span>
+                            </a>
+                            <a href="#import" onclick="showSection('import', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-download-cloud-line text-lg"></i>
+                                <span class="text-sm font-medium">Araç Import</span>
+                            </a>
+                            <a href="#quotations" onclick="showSection('quotations', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-calendar-check-line text-lg"></i>
+                                <span class="text-sm font-medium">Rezervasyonlar</span>
+                            </a>
+                            <a href="#payments" onclick="showSection('payments', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-bank-card-line text-lg"></i>
+                                <span class="text-sm font-medium">Ödemeler</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sistem -->
+                    <div>
+                        <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Sistem</div>
+                        <div class="space-y-1">
+                            <a href="#locations" onclick="showSection('locations', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-map-pin-2-line text-lg"></i>
+                                <span class="text-sm font-medium">Lokasyonlar</span>
+                            </a>
+                            <a href="#backups" onclick="showSection('backups', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-database-2-line text-lg"></i>
+                                <span class="text-sm font-medium">Yedekleme</span>
+                            </a>
+                            <a href="#settings" onclick="showSection('settings', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-settings-3-line text-lg"></i>
+                                <span class="text-sm font-medium">Ayarlar</span>
+                            </a>
+                            <a href="#users" onclick="showSection('users', event); toggleMobileMenu()"
+                               class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                <i class="ri-user-settings-line text-lg"></i>
+                                <span class="text-sm font-medium">Kullanıcı Yönetimi</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-700/50">
+            <div class="flex items-center gap-4 p-3 rounded-lg bg-gray-700/30">
+                <img class="w-10 h-10 rounded-full object-cover" src="https://i.pravatar.cc/100" alt="Admin">
+                <div>
+                    <div class="font-semibold">Admin</div>
+                    <div class="text-xs text-gray-400">Yönetici</div>
+                </div>
+            </div>
+            <a href="./index.html" target="_blank" class="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">
+                <i class="ri-external-link-line"></i>
+                <span>Siteyi Görüntüle</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex h-screen overflow-hidden bg-gray-100">
+
+        <!-- Sidebar -->
+        <aside class="w-64 bg-secondary text-white flex-shrink-0 hidden md:flex flex-col justify-between overflow-y-auto">
+            <div>
+                <div class="p-6">
+                    <div class="text-2xl font-logo font-bold text-primary mb-8 flex items-center gap-2">
+                        <i class="ri-steering-fill"></i>
+                        <span>Kiralık Car</span>
+                    </div>
+                    
+                    <nav class="space-y-6">
+                        <!-- Genel -->
+                        <div>
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Genel</div>
+                            <div class="space-y-1">
+                                <a href="#dashboard" onclick="showSection('dashboard', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer bg-gray-700">
+                                    <i class="ri-dashboard-2-line text-lg"></i>
+                                    <span class="text-sm font-medium">Dashboard</span>
+                                </a>
+                                <a href="#visitors" onclick="showSection('visitors', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-eye-line text-lg"></i>
+                                    <span class="text-sm font-medium">Ziyaretçiler</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Araçlar & Rezervasyon -->
+                        <div>
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Araçlar & Rezervasyon</div>
+                            <div class="space-y-1">
+                                <a href="#vehicles" onclick="showSection('vehicles', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-car-line text-lg"></i>
+                                    <span class="text-sm font-medium">Araç Yönetimi</span>
+                                </a>
+                                <a href="#import" onclick="showSection('import', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-download-cloud-line text-lg"></i>
+                                    <span class="text-sm font-medium">Araç Import</span>
+                                </a>
+                                <a href="#quotations" onclick="showSection('quotations', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-calendar-check-line text-lg"></i>
+                                    <span class="text-sm font-medium">Rezervasyonlar</span>
+                                </a>
+                                <a href="#payments" onclick="showSection('payments', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-bank-card-line text-lg"></i>
+                                    <span class="text-sm font-medium">Ödemeler</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Sistem -->
+                        <div>
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Sistem</div>
+                            <div class="space-y-1">
+                                <a href="#locations" onclick="showSection('locations', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-map-pin-2-line text-lg"></i>
+                                    <span class="text-sm font-medium">Lokasyonlar</span>
+                                </a>
+                                <a href="#backups" onclick="showSection('backups', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-database-2-line text-lg"></i>
+                                    <span class="text-sm font-medium">Yedekleme</span>
+                                </a>
+                                <a href="#settings" onclick="showSection('settings', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-settings-3-line text-lg"></i>
+                                    <span class="text-sm font-medium">Ayarlar</span>
+                                </a>
+                                <a href="#users" onclick="showSection('users', event)"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer">
+                                    <i class="ri-user-settings-line text-lg"></i>
+                                    <span class="text-sm font-medium">Kullanıcı Yönetimi</span>
+                                </a>
+                                <a href="#database" onclick="showSection('database', event)" id="nav-database"
+                                   class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-700/50 transition-all duration-300 cursor-pointer hidden">
+                                    <i class="ri-database-2-line text-lg"></i>
+                                    <span class="text-sm font-medium">Veritabanı</span>
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-700/50">
+                <div class="flex items-center gap-4 p-3 rounded-lg bg-gray-700/30">
+                    <img class="w-10 h-10 rounded-full object-cover" src="https://i.pravatar.cc/100" alt="Admin">
+                    <div>
+                        <div class="font-semibold">Admin</div>
+                        <div class="text-xs text-gray-400">Yönetici</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Top Bar -->
+            <header class="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/80 p-4 z-10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600 hover:text-primary transition-colors">
+                            <i class="ri-menu-line text-2xl"></i>
+                        </button>
+                        <h1 class="text-xl md:text-2xl font-bold text-secondary">Yönetici Paneli</h1>
+                    </div>
+                    <div class="flex items-center gap-3 md:gap-5">
+                        <button class="relative text-gray-600 hover:text-primary transition-colors duration-300">
+                            <i class="ri-notification-3-line text-xl md:text-2xl"></i>
+                            <span class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-primary text-white text-[10px] md:text-xs rounded-full flex items-center justify-center border-2 border-white">3</span>
+                        </button>
+                        <a href="./index.html" target="_blank" class="hidden md:flex items-center gap-2 text-gray-600 hover:text-primary transition-colors duration-300">
+                            <i class="ri-external-link-line"></i>
+                            <span>Siteyi Görüntüle</span>
+                        </a>
+                        <button onclick="logout()" class="flex items-center gap-2 text-red-600 hover:text-red-800 transition-colors duration-300">
+                            <i class="ri-logout-box-line text-xl md:text-base"></i>
+                            <span class="hidden md:inline">Çıkış</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6 md:p-8">
+
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="section-content animate-fade-in">
+                    <h2 class="text-3xl font-bold text-secondary mb-6">Dashboard</h2>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                                    <i class="ri-car-line text-3xl text-blue-600"></i>
+                                </div>
+                                <span class="text-green-600 font-semibold">+12%</span>
+                            </div>
+                            <div class="text-4xl font-bold text-secondary mb-1" id="dashboardTotalVehicles">0</div>
+                            <div class="text-gray-500">Toplam Araç</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <i class="ri-calendar-check-line text-3xl text-green-600"></i>
+                                </div>
+                                <span class="text-green-600 font-semibold">+5%</span>
+                            </div>
+                            <div class="text-4xl font-bold text-secondary mb-1" id="dashboardTotalReservations">0</div>
+                            <div class="text-gray-500">Rezervasyon</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
+                                    <i class="ri-eye-line text-3xl text-purple-600"></i>
+                                </div>
+                                <span class="text-green-600 font-semibold">+18%</span>
+                            </div>
+                            <div class="text-4xl font-bold text-secondary mb-1" id="dashboardTotalVisitors">0</div>
+                            <div class="text-gray-500">Ziyaretçi</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
+                                    <i class="ri-message-3-line text-3xl text-orange-600"></i>
+                                </div>
+                                <span class="text-red-600 font-semibold">-2%</span>
+                            </div>
+                            <div class="text-4xl font-bold text-secondary mb-1">0</div>
+                            <div class="text-gray-500">Mesajlar</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visitors Section -->
+                <section id="visitors-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-secondary mb-2">Ziyaretçi İstatistikleri</h2>
+                            <p class="text-gray-600">Site trafiğini ve ziyaretçi detaylarını inceleyin</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="loadVisitorStats()" class="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600">
+                                <i class="ri-refresh-line"></i> Yenile
+                            </button>
+                            <button onclick="resetVisitorLogs()" class="p-2 bg-red-100 border border-red-200 rounded-lg hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1">
+                                <i class="ri-delete-bin-6-line"></i> Verileri Sıfırla
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">Toplam Ziyaret</div>
+                                    <div class="text-3xl font-bold text-secondary" id="statTotalVisits">0</div>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                    <i class="ri-bar-chart-fill text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">Tekil Ziyaretçi</div>
+                                    <div class="text-3xl font-bold text-secondary" id="statUniqueVisitors">0</div>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                    <i class="ri-user-follow-line text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">Bugünkü Ziyaret</div>
+                                    <div class="text-3xl font-bold text-secondary" id="statTodayVisits">0</div>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                                    <i class="ri-calendar-event-line text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visitor Logs Table -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-bold text-secondary">Son Ziyaretçiler</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarih</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Adresi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cihaz / Tarayıcı</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gelen Sayfa (Referrer)</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gezilen Sayfa</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitorLogsTable" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <script>
+                    async function resetVisitorLogs() {
+                        if (!confirm('Tüm ziyaretçi verileri silinecek. Emin misiniz?')) return;
+                        try {
+                            const res = await fetch('/api/visitors/reset', { method: 'POST' });
+                            const data = await res.json();
+                            if (data.success) {
+                                alert('Ziyaretçi verileri başarıyla silindi!');
+                                loadVisitorStats();
+                            } else {
+                                alert('Veriler silinemedi: ' + (data.error || 'Bilinmeyen hata'));
+                            }
+                        } catch (err) {
+                            alert('Sunucuya ulaşılamadı.');
+                        }
+                    }
+                    </script>
+                </section>
+
+                <!-- Reservations Section -->
+                <section id="quotations-section" class="section-content hidden animate-fade-in">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-secondary mb-4">
+                            <i class="ri-calendar-check-line mr-2"></i>Rezervasyon Yönetimi
+                        </h2>
+                        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                            <button onclick="filterQuotations('all')" class="filter-btn px-4 py-2 rounded-lg bg-primary text-white font-semibold transition-all whitespace-nowrap">Tümü</button>
+                            <button onclick="filterQuotations('yeni')" class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold transition-all whitespace-nowrap">Yeni</button>
+                            <button onclick="filterQuotations('iletisim')" class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold transition-all whitespace-nowrap">İletişim Kuruldu</button>
+                            <button onclick="filterQuotations('bitirme')" class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold transition-all whitespace-nowrap">Bitirme</button>
+                            <button onclick="filterQuotations('tamamlandi')" class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold transition-all whitespace-nowrap">Tamamlandı</button>
+                        </div>
+                    </div>
+
+                    <!-- Reservations Cards/List -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div id="quotations-table" class="divide-y divide-gray-200">
+                            <!-- Dynamic content will be injected here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payments Section -->
+                <section id="payments-section" class="section-content hidden animate-fade-in">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-secondary mb-4">
+                            <i class="ri-bank-card-line mr-2"></i>Ödeme Yönetimi
+                        </h2>
+                    </div>
+
+                    <!-- Payments Table (Desktop) -->
+                    <div class="hidden md:block bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-100 border-b">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Tarih</th>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Rezervasyon</th>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Müşteri</th>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Tutar</th>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Kart</th>
+                                        <th class="px-6 py-4 text-left font-semibold text-secondary">Durum</th>
+                                        <th class="px-6 py-4 text-right font-semibold text-secondary">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-table-body" class="divide-y divide-gray-200">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Payments List (Mobile) -->
+                    <div id="payments-mobile-list" class="md:hidden space-y-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </section>
+
+                <!-- Quick Reservations Section -->
+
+
+                <!-- Vehicles Section -->
+                <section id="vehicles-section" class="section-content hidden animate-fade-in">
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+                        <h2 class="text-3xl font-bold text-secondary">Araç Yönetimi</h2>
+                        <button id="add-vehicle-button"
+                                class="w-full md:w-auto gradient-primary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
+                            <i class="ri-add-line text-xl"></i>
+                            <span>Yeni Araç Ekle</span>
+                        </button>
+                    </div>
+
+                    <!-- Vehicle Cards -->
+                    <div id="vehicle-cards-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Dynamic content will be injected here -->
+                    </div>
+                </section>
+
+                <!-- Locations Section -->
+                <section id="locations-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold text-secondary">Lokasyon Yönetimi</h2>
+                        <button onclick="openAddLocationForm()" class="gradient-primary text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all">
+                            <i class="ri-add-line"></i> Yeni Lokasyon
+                        </button>
+                    </div>
+
+                    <!-- Locations Table -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b">
+                                <tr>
+                                    <th class="px-6 py-4 text-left font-semibold text-secondary">Bölge</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-secondary">Lokasyon Adı</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-secondary">Tip</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-secondary">Durum</th>
+                                    <th class="px-6 py-4 text-right font-semibold text-secondary">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locations-table-body" class="divide-y divide-gray-200">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Backups Section -->
+                <section id="backups-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-3xl font-bold text-secondary mb-2">Yedekleme Yönetimi</h2>
+                            <p class="text-gray-600">Veritabanı yedeklerini oluşturun ve yönetin.</p>
+                        </div>
+                        <button id="createBackupBtn" onclick="createBackup()" class="gradient-primary text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+                            <i class="ri-database-2-line"></i>
+                            <span>Yeni Yedek Oluştur</span>
+                        </button>
+                    </div>
+
+                    <div id="backupCreateStatus" class="hidden mb-6"></div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-secondary mb-4">Yedek Listesi</h3>
+                        <div id="backupsList" class="space-y-3">
+                            <!-- Backups will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="section-content hidden animate-fade-in">
+                    <h2 class="text-3xl font-bold text-secondary mb-6">Site Ayarları</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Genel Ayarlar -->
+                        <div class="bg-white rounded-xl shadow-lg p-8">
+                            <h3 class="text-xl font-semibold text-secondary mb-6 flex items-center gap-3">
+                                <i class="ri-settings-3-line text-primary"></i>
+                                <span>Genel Bilgiler</span>
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Site Başlığı</label>
+                                    <input type="text" id="siteName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                                    <input type="text" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
+                                    <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Numarası</label>
+                                    <input type="text" id="whatsappNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="90555...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renk Paleti Ayarları -->
+                        <div class="bg-white rounded-xl shadow-lg p-8">
+                            <h3 class="text-xl font-semibold text-secondary mb-6 flex items-center gap-3">
+                                <i class="ri-palette-line text-primary"></i>
+                                <span>Renk Paleti</span>
+                            </h3>
+                            <p class="text-gray-600 mb-6">Sitenizin ana renk temasını seçin. Değişiklikler anında tüm sitede uygulanacaktır.</p>
+
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="colorThemes">
+                                <!-- Theme Options will be dynamically styled -->
+                            </div>
+                        </div>
+
+                        <!-- Özel Gün Efektleri -->
+                        <div class="bg-white rounded-xl shadow-lg p-8 lg:col-span-2">
+                            <h3 class="text-xl font-semibold text-secondary mb-6 flex items-center gap-3">
+                                <i class="ri-magic-line text-primary"></i>
+                                <span>Özel Gün Efektleri</span>
+                            </h3>
+                            
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Yeni Yıl Modu</h4>
+                                    <p class="text-sm text-gray-600">Sitede kar yağışı efekti ve yeni yıl kutlama banner'ını aktif eder.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="newYearEffect" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+
+                            <div class="mt-4 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Banner Metni</label>
+                                <input type="text" id="newYearBannerText" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Örn: 🎄 Yeni Yılınız Kutlu Olsun! 2026'ya Özel İndirimleri Kaçırmayın! 🎅">
+                                <p class="text-xs text-gray-500 mt-1">Banner içinde görünecek mesajı buradan düzenleyebilirsiniz.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kaydet Butonu -->
+                    <div class="flex items-center justify-between bg-white rounded-xl shadow-lg p-6 mt-6">
+                        <div class="text-sm text-gray-600">
+                            <i class="ri-information-line mr-1"></i>
+                            Değişiklikleri kaydetmeyi unutmayın.
+                        </div>
+                        <button onclick="saveSettings()" class="gradient-primary text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5">
+                            <i class="ri-save-line"></i>
+                            <span>Değişiklikleri Kaydet</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Import Section -->
+                <section id="import-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-secondary mb-2">Araç Import</h2>
+                            <p class="text-gray-600">data.html'den toplu araç yükleyin</p>
+                        </div>
+                    </div>
+
+                    <!-- İstatistikler -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-primary mb-2" id="totalVehiclesCount">0</div>
+                            <div class="text-gray-600 text-sm">Toplam Araç</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-green-600 mb-2" id="uploadedCount">0</div>
+                            <div class="text-gray-600 text-sm">Yüklendi</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-yellow-600 mb-2" id="pendingCount">0</div>
+                            <div class="text-gray-600 text-sm">Bekliyor</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-blue-600 mb-2" id="selectedCount">0</div>
+                            <div class="text-gray-600 text-sm">Seçili</div>
+                        </div>
+                    </div>
+
+                    <!-- HTML Yükle -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-secondary mb-4">HTML Dosyası Yükle</h3>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input type="file" id="htmlFileInput" accept=".html" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <button onclick="parseHTMLFile()" class="gradient-primary text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                                <i class="ri-file-search-line mr-2"></i>Analiz Et
+                            </button>
+                            <button onclick="loadDefaultData()" class="bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-all duration-300">
+                                <i class="ri-database-2-line mr-2"></i>Varsayılan Veri
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Seçim Araç Çubuğu -->
+                    <div id="selectionBar" class="bg-white rounded-xl shadow-lg p-4 mb-6 hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div class="flex gap-4 items-center">
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" class="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary">
+                                    <span>Tümünü Seç</span>
+                                </label>
+                                <span id="selectedCountText" class="text-gray-600">0 araç seçili</span>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="uploadSelectedBtn" onclick="uploadSelected()" disabled class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="ri-upload-2-line mr-2"></i>Seçilenleri Yükle
+                                </button>
+                                <button onclick="uploadAll()" class="gradient-primary text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all">
+                                    <i class="ri-rocket-line mr-2"></i>Tümünü Yükle
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="progressBar" class="hidden mb-6">
+                        <div class="w-full h-8 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="progressFill" class="h-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center text-white font-bold transition-all duration-300" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Log Container -->
+                    <div id="logContainer" class="hidden bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm max-h-64 overflow-y-auto mb-6"></div>
+
+                    <!-- Araç Kartları -->
+                    <div id="vehicleImportGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[600px] overflow-y-auto p-2"></div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-secondary mb-2">Kullanıcı Yönetimi</h2>
+                            <p class="text-gray-600">Admin paneli kullanıcılarını yönetin</p>
+                        </div>
+                        <button onclick="openAddUserModal()" class="gradient-primary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5">
+                            <i class="ri-user-add-line"></i>
+                            <span>Yeni Kullanıcı</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 border-b border-gray-100">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kullanıcı Adı</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">E-posta</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Oluşturulma</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Son Giriş</th>
+                                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersList" class="divide-y divide-gray-100">
+                                    <!-- Users will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Database Section -->
+                <section id="database-section" class="section-content hidden animate-fade-in">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-secondary mb-2">Veritabanı Yönetimi</h2>
+                            <p class="text-gray-600">Doğrudan veritabanı sorguları çalıştırın ve tabloları yönetin</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <!-- Tables List -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h3 class="text-lg font-semibold text-secondary mb-4">Tablolar</h3>
+                                <div id="db-tables-list" class="space-y-2">
+                                    <!-- Tables will be loaded here -->
+                                    <div class="animate-pulse space-y-2">
+                                        <div class="h-8 bg-gray-200 rounded"></div>
+                                        <div class="h-8 bg-gray-200 rounded"></div>
+                                        <div class="h-8 bg-gray-200 rounded"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Query Editor & Results -->
+                        <div class="lg:col-span-3 space-y-6">
+                            <!-- Query Editor -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-secondary">SQL Sorgusu</h3>
+                                    <button onclick="executeDbQuery()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                        <i class="ri-play-fill"></i> Çalıştır
+                                    </button>
+                                </div>
+                                <textarea id="db-query-input" class="w-full h-32 p-4 font-mono text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" placeholder="SELECT * FROM users LIMIT 10;"></textarea>
+                                <div class="mt-2 text-xs text-gray-500">
+                                    İpucu: Çoklu sorgu desteklenmez. Sadece SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER komutları çalıştırılabilir.
+                                </div>
+                            </div>
+
+                            <!-- Results -->
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                                <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                                    <h3 class="text-lg font-semibold text-secondary">Sonuçlar</h3>
+                                    <span id="db-result-count" class="text-sm text-gray-500"></span>
+                                </div>
+                                <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                                    <div id="db-results-container" class="p-4 text-gray-500 text-center">
+                                        Sonuçları görmek için bir sorgu çalıştırın veya soldan bir tablo seçin.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Vehicle Modal -->
+    <div id="vehicle-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-300 animate-fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-transform duration-300 animate-scale-in">
+            <form id="vehicle-form" class="p-8" onsubmit="saveVehicle(event)">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="modal-title" class="text-2xl font-bold text-secondary">Yeni Araç Ekle</h2>
+                    <button type="button" onclick="closeVehicleModal()" class="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"><i class="ri-close-line text-2xl"></i></button>
+                </div>
+                <input type="hidden" id="vehicle-id">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="vehicle-model" class="block text-secondary font-medium mb-2">Araç Modeli</label>
+                        <input type="text" id="vehicle-model" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" required>
+                    </div>
+                    <div>
+                        <label for="vehicle-price" class="block text-secondary font-medium mb-2">Günlük Fiyat</label>
+                        <input type="text" id="vehicle-price" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="1500₺" required>
+                    </div>
+                    <div>
+                        <label for="vehicle-deposit" class="block text-secondary font-medium mb-2">Depozito</label>
+                        <input type="text" id="vehicle-deposit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="5000₺" required>
+                    </div>
+                    <div>
+                        <label for="vehicle-passengers" class="block text-secondary font-medium mb-2">Kişi Sayısı</label>
+                        <input type="number" id="vehicle-passengers" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" min="2" max="9" value="5" required>
+                    </div>
+                    <div>
+                        <label for="vehicle-fuel" class="block text-secondary font-medium mb-2">Yakıt Türü</label>
+                        <select id="vehicle-fuel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition">
+                            <option>Benzin</option>
+                            <option>Dizel</option>
+                            <option>Hibrit</option>
+                            <option>Elektrik</option>
+                            <option>LPG</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="vehicle-transmission" class="block text-secondary font-medium mb-2">Vites Türü</label>
+                        <select id="vehicle-transmission" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition">
+                            <option selected>Otomatik</option>
+                            <option>Manuel</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="vehicle-category" class="block text-secondary font-medium mb-2">Kategori</label>
+                        <select id="vehicle-category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition">
+                            <option value="Binek" selected>Binek Araçlar</option>
+                            <option value="Ticari">Ticari Araçlar</option>
+                            <option value="SUV">SUV / Arazi</option>
+                            <option value="Lüks">Lüks / Spor</option>
+                            <option value="Minivan">Minivan</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-secondary font-medium mb-2">Araç Görseli</label>
+                        <div class="flex flex-col gap-3">
+                            <input type="text" id="vehicle-image" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" placeholder="Görsel URL'si girin veya dosya yükleyin">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">veya</span>
+                                <input type="file" id="vehicle-image-file" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-600 transition">
+                            </div>
+                            <div id="upload-status" class="text-sm text-gray-600 hidden"></div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="vehicle-status" class="block text-secondary font-medium mb-2">Durum</label>
+                        <select id="vehicle-status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition">
+                            <option>Müsait</option>
+                            <option>Kirada</option>
+                            <option>Bakımda</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4 mt-8">
+                    <button type="button" onclick="closeVehicleModal()" class="px-6 py-3 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 font-semibold transition-colors">İptal</button>
+                    <button type="submit" class="px-6 py-3 rounded-lg gradient-primary text-white font-semibold hover:shadow-lg transition-all duration-300">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-300 animate-fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md m-4 transform transition-transform duration-300 animate-scale-in">
+            <form id="user-form" class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="user-modal-title" class="text-2xl font-bold text-secondary">Yeni Kullanıcı Ekle</h2>
+                    <button type="button" onclick="closeUserModal()" class="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"><i class="ri-close-line text-2xl"></i></button>
+                </div>
+                <input type="hidden" id="user-id">
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="username" class="block text-secondary font-medium mb-2">Kullanıcı Adı</label>
+                        <input type="text" id="username" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" required>
+                    </div>
+                    <div>
+                        <label for="user-email" class="block text-secondary font-medium mb-2">E-posta</label>
+                        <input type="email" id="user-email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" required>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-secondary font-medium mb-2">Şifre</label>
+                        <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition" required>
+                    </div>
+                    <div>
+                        <label for="role" class="block text-secondary font-medium mb-2">Rol</label>
+                        <select id="role" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white transition">
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editör</option>
+                            <option value="viewer">Görüntüleyici</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4 mt-8">
+                    <button type="button" onclick="closeUserModal()" class="px-6 py-3 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 font-semibold transition-colors">İptal</button>
+                    <button type="submit" class="px-6 py-3 rounded-lg gradient-primary text-white font-semibold hover:shadow-lg transition-all duration-300">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // SiteSettings basit implementasyonu
+        const SiteSettings = {
+            themes: {
+                blue: {
+                    primary: '#2563EB',
+                    primaryDark: '#1E40AF',
+                    accent: '#F59E0B',
+                    accentLight: '#FEF3C7',
+                    name: 'Mavi Tema',
+                    description: 'Kurumsal ve güven veren mavi tonları'
+                },
+                red: {
+                    primary: '#DC2626',
+                    primaryDark: '#B91C1C',
+                    accent: '#F59E0B',
+                    accentLight: '#FEF3C7',
+                    name: 'Kırmızı Tema',
+                    description: 'Enerjik ve dikkat çekici kırmızı tonları'
+                },
+                green: {
+                    primary: '#059669',
+                    primaryDark: '#047857',
+                    accent: '#F59E0B',
+                    accentLight: '#FEF3C7',
+                    name: 'Yeşil Tema',
+                    description: 'Doğal ve ferah yeşil tonları'
+                },
+                purple: {
+                    primary: '#7C3AED',
+                    primaryDark: '#6D28D9',
+                    accent: '#F59E0B',
+                    accentLight: '#FEF3C7',
+                    name: 'Mor Tema',
+                    description: 'Modern ve yaratıcı mor tonları'
+                },
+                orange: {
+                    primary: '#EA580C',
+                    primaryDark: '#C2410C',
+                    accent: '#2563EB',
+                    accentLight: '#DBEAFE',
+                    name: 'Turuncu Tema',
+                    description: 'Sıcak ve samimi turuncu tonları'
+                }
+            },
+            load: () => {
+                const saved = localStorage.getItem('siteSettings');
+                return saved ? JSON.parse(saved) : {
+                    siteName: 'RentCar',
+                    phone: '0555 123 45 67',
+                    email: 'info@rentcar.com',
+                    whatsappNumber: '905551234567',
+                    colorTheme: 'blue'
+                };
+            },
+            save: (settings) => {
+                localStorage.setItem('siteSettings', JSON.stringify(settings));
+            }
+        };
+
+        // VehicleManager tanımı
+        const VehicleManager = {
+            async load() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/vehicles`);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    return [];
+                } catch (e) {
+                    console.error('Vehicles load error:', e);
+                    return [];
+                }
+            },
+            async add(vehicle) {
+                try {
+                    if (!vehicle.id) vehicle.id = Date.now().toString();
+                    const token = localStorage.getItem('adminToken');
+                    const response = await fetch(`${API_BASE_URL}/vehicles`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: JSON.stringify(vehicle)
+                    });
+                    return response.ok;
+                } catch (e) {
+                    console.error('Add vehicle error:', e);
+                    throw e;
+                }
+            },
+            async update(updatedVehicle) {
+                try {
+                    console.log('🔄 VehicleManager.update başladı:', updatedVehicle);
+                    const token = localStorage.getItem('adminToken');
+                    console.log('🔑 Token:', token ? 'Var' : 'Yok');
+                    console.log('🌐 API URL:', `${API_BASE_URL}/vehicles/${updatedVehicle.id}`);
+                    
+                    const response = await fetch(`${API_BASE_URL}/vehicles/${updatedVehicle.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: JSON.stringify(updatedVehicle)
+                    });
+                    
+                    console.log('📡 Response status:', response.status);
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error('❌ Response error:', errorData);
+                    }
+                    
+                    return response.ok;
+                } catch (e) {
+                    console.error('❌ Update vehicle error:', e);
+                    throw e;
+                }
+            },
+            async delete(vehicleId) {
+                try {
+                    const token = localStorage.getItem('adminToken');
+                    const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        }
+                    });
+                    return response.ok;
+                } catch (e) {
+                    console.error('Delete vehicle error:', e);
+                    throw e;
+                }
+            },
+            async findById(id) {
+                try {
+                    const vehicles = await this.load();
+                    return vehicles.find(v => v.id === id || v.id === parseInt(id));
+                } catch (e) {
+                    console.error('Find vehicle error:', e);
+                    return null;
+                }
+            }
+        };
+        
+        // --- DYNAMIC API URL ---
+        // Production domain kontrolü ekle
+        const isProduction = window.location.hostname === 'www.kiralikcar.com' || 
+                            window.location.hostname === 'kiralikcar.com' ||
+                            !window.location.hostname.includes('localhost');
+        
+        const API_BASE_URL = '/api';
+        
+        console.log('🌐 Admin Panel API URL:', API_BASE_URL);
+        console.log('🌐 Hostname:', window.location.hostname);
+        console.log('🌐 Is Production:', isProduction);
+
+        // --- AUTHENTICATION ---
+        const AUTH_KEY = 'adminToken';
+        let pollingInterval;
+
+        // JWT Token'ı her istekte header'a ekleyen fonksiyon
+        function getAuthHeaders() {
+            const token = localStorage.getItem(AUTH_KEY);
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+        }
+
+        async function checkAuth() {
+            const token = localStorage.getItem(AUTH_KEY);
+            if (!token) {
+                showLoginScreen();
+                return false;
+            }
+
+            // Token'ı backend'de doğrula
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Root kontrolü
+                    if (data.user && data.user.username === 'root') {
+                        const dbNav = document.getElementById('nav-database');
+                        if (dbNav) dbNav.classList.remove('hidden');
+                    }
+
+                    showMainPanel();
+                    loadQuotations();
+                    loadLocations();
+                    displayVehicles();
+                    if (typeof loadUsers === 'function') loadUsers();
+                    return true;
+                } else {
+                    localStorage.removeItem(AUTH_KEY);
+                    showLoginScreen();
+                    return false;
+                }
+            } catch (error) {
+                console.error('Token doğrulama hatası:', error);
+                localStorage.removeItem(AUTH_KEY);
+                showLoginScreen();
+                return false;
+            }
+        }
+
+        function showLoginScreen() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            document.querySelector('.flex.h-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function showMainPanel() {
+            document.querySelector('.flex.h-screen').classList.remove('hidden');
+            document.getElementById('login-screen').classList.add('hidden');
+
+            // Initial load
+            loadRecentActivities();
+            updateDashboardStats();
+
+            // Auto-refresh reservations and activities every 5 seconds
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(() => {
+                loadQuotations();
+                loadRecentActivities();
+                updateDashboardStats();
+            }, 5000);
+        }
+
+        async function login(username, password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    localStorage.setItem(AUTH_KEY, data.token);
+                    showMainPanel();
+                    loadQuotations();
+                    loadLocations();
+                    displayVehicles();
+                    if (typeof loadUsers === 'function') loadUsers();
+                    console.log('✅ Giriş başarılı:', data.user.username);
+                    return true;
+                } else {
+                    console.error('❌ Giriş hatası:', data.error);
+                    alert('Giriş Hatası: ' + (data.error || 'Bilinmeyen hata'));
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Login request hatası:', error);
+                return false;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem(AUTH_KEY);
+            showLoginScreen();
+            console.log('✅ Çıkış yapıldı');
+        }
+
+        // --- RECENT ACTIVITIES ---
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " yıl önce";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " ay önce";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " gün önce";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " saat önce";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " dakika önce";
+            return "Az önce";
+        }
+
+        async function loadRecentActivities() {
+            const container = document.getElementById('recent-activities-list');
+            if (!container) return;
+
+            try {
+                // Fetch all data in parallel
+                const [resResponse, qResponse, qrResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/reservations`),
+                    fetch(`${API_BASE_URL}/quotations`),
+                    fetch(`${API_BASE_URL}/quick-reservations`, { headers: getAuthHeaders() })
+                ]);
+
+                let activities = [];
+
+                if (resResponse.ok) {
+                    const data = await resResponse.json();
+                    activities.push(...data.map(item => ({
+                        type: 'reservation',
+                        title: 'Yeni Rezervasyon',
+                        desc: `${item.fullName} - ${item.vehicleName || 'Araç'}`,
+                        date: new Date(item.createdAt),
+                        icon: 'ri-calendar-check-line',
+                        color: 'green'
+                    })));
+                }
+
+                if (qResponse.ok) {
+                    const data = await qResponse.json();
+                    activities.push(...data.map(item => ({
+                        type: 'quotation',
+                        title: 'Yeni Teklif Talebi',
+                        desc: `${item.name} - ${item.vehicleName || 'Araç'}`,
+                        date: new Date(item.createdAt),
+                        icon: 'ri-chat-quote-line',
+                        color: 'blue'
+                    })));
+                }
+
+                if (qrResponse.ok) {
+                    const data = await qrResponse.json();
+                    activities.push(...data.map(item => ({
+                        type: 'quick-reservation',
+                        title: 'Hızlı Rezervasyon',
+                        desc: `${item.fullName} - ${item.vehicleName || 'Araç'}`,
+                        date: new Date(item.createdAt),
+                        icon: 'ri-flashlight-line',
+                        color: 'yellow'
+                    })));
+                }
+
+                // Sort by date desc
+                activities.sort((a, b) => b.date - a.date);
+
+                // Take top 5
+                const recent = activities.slice(0, 5);
+
+                if (recent.length === 0) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-4">Henüz aktivite yok</div>';
+                    return;
+                }
+
+                container.innerHTML = recent.map(item => {
+                    const timeAgo = getTimeAgo(item.date);
+                    const colorClass = item.color === 'green' ? 'bg-green-100 text-green-600' : 
+                                     item.color === 'blue' ? 'bg-blue-100 text-blue-600' : 
+                                     'bg-yellow-100 text-yellow-600';
+                    
+                    return `
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                            <div class="w-10 h-10 ${colorClass} rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="${item.icon}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-secondary">${item.title}</div>
+                                <div class="text-sm text-gray-600">${item.desc}</div>
+                            </div>
+                            <div class="text-sm text-gray-500 whitespace-nowrap">${timeAgo}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Aktiviteler yüklenirken hata:', error);
+                container.innerHTML = '<div class="text-center text-red-500 py-4">Yüklenemedi</div>';
+            }
+        }
+
+        // --- RESERVATIONS MANAGEMENT ---
+        let currentQuotations = []; // reservations ve quotations birlikte
+        let filteredQuotations = [];
+
+        async function loadQuotations() {
+            try {
+                // Reservations yükle
+                let reservations = [];
+                const resResponse = await fetch(`${API_BASE_URL}/reservations`, { headers: getAuthHeaders() });
+                if (resResponse.ok) {
+                    reservations = await resResponse.json();
+                    reservations = reservations.map(r => ({ ...r, type: 'reservation' }));
+                }
+
+                // Quotations yükle
+                let quotations = [];
+                const qResponse = await fetch(`${API_BASE_URL}/quotations`);
+                if (qResponse.ok) {
+                    quotations = await qResponse.json();
+                    quotations = quotations.map(q => ({ ...q, type: 'quotation' }));
+                }
+
+                // Quick Reservations yükle
+                let quickReservations = [];
+                const qrResponse = await fetch(`${API_BASE_URL}/quick-reservations`, { headers: getAuthHeaders() });
+                if (qrResponse.ok) {
+                    quickReservations = await qrResponse.json();
+                    quickReservations = quickReservations.map(q => ({ ...q, type: 'quick-reservation' }));
+                }
+
+                // Birleştir ve sırala
+                currentQuotations = [...reservations, ...quotations, ...quickReservations].sort((a, b) => {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                });
+                
+                displayQuotations(currentQuotations);
+                
+                // Bekleyen konteynerleri güncelle
+                const pendingCount = currentQuotations.filter(q => q.status === 'yeni').length;
+                const pendingElement = document.getElementById('pending-count');
+                if (pendingElement) {
+                    pendingElement.textContent = pendingCount;
+                }
+            } catch (error) {
+                console.error('Veriler yükleme hatası:', error);
+                document.getElementById('quotations-table').innerHTML = '<div class="px-6 py-4 text-center text-red-600">Veriler yüklenemedi</div>';
+            }
+        }
+
+        function formatDateSafe(dateInput) {
+            if (!dateInput) return '-';
+            let date;
+            // Timestamp kontrolü (String veya Number olarak gelebilir)
+            // Örn: "1764028800000.0" veya 1764028800000
+            if ((typeof dateInput === 'string' && /^\d+(\.\d+)?$/.test(dateInput)) || typeof dateInput === 'number') {
+                date = new Date(parseFloat(dateInput));
+            } else {
+                date = new Date(dateInput);
+            }
+            
+            if (isNaN(date.getTime())) return 'Geçersiz Tarih';
+            return date.toLocaleDateString('tr-TR');
+        }
+
+        function displayQuotations(items) {
+            const container = document.getElementById('quotations-table');
+            if (items.length === 0) {
+                container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Henüz rezervasyon yok</div>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                const statusColors = {
+                    'yeni': 'bg-blue-100 text-blue-700',
+                    'iletisim': 'bg-yellow-100 text-yellow-700',
+                    'bitirme': 'bg-purple-100 text-purple-700',
+                    'tamamlandi': 'bg-green-100 text-green-700'
+                };
+                const statusColor = statusColors[item.status] || 'bg-gray-100 text-gray-700';
+                const date = new Date(item.createdAt).toLocaleDateString('tr-TR');
+                
+                // Reservation İçeriği
+                if (item.type === 'reservation') {
+                    return `
+                        <div class="border-b last:border-b-0 hover:bg-blue-50 transition-colors p-6">
+                            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Kişi</p>
+                                    <p class="font-semibold text-secondary">${item.fullName}</p>
+                                    <p class="text-sm text-gray-600">${item.phone}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Alış - İade</p>
+                                    <p class="font-semibold text-blue-600"><i class="ri-map-pin-line"></i> ${item.pickupLocation}</p>
+                                    <p class="text-sm text-gray-600"><i class="ri-map-pin-2-line"></i> ${item.dropoffLocation}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Tarihler</p>
+                                    <p class="font-semibold text-orange-600">${formatDateSafe(item.pickupDate)} ${item.pickupTime}</p>
+                                    <p class="text-sm text-orange-600">${formatDateSafe(item.dropoffDate)} ${item.dropoffTime}</p>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase">Durum</p>
+                                        <select onchange="updateReservationStatus(${item.id}, this.value)" class="px-3 py-1 rounded-lg ${statusColor} border-0 font-semibold cursor-pointer text-sm">
+                                            <option value="yeni" ${item.status === 'yeni' ? 'selected' : ''}>Yeni</option>
+                                            <option value="iletisim" ${item.status === 'iletisim' ? 'selected' : ''}>İletişim</option>
+                                            <option value="bitirme" ${item.status === 'bitirme' ? 'selected' : ''}>Bitirme</option>
+                                            <option value="tamamlandi" ${item.status === 'tamamlandi' ? 'selected' : ''}>Tamamlandı</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-right">
+                                        <button onclick="deleteReservation(${item.id})" class="text-red-600 hover:text-red-800 p-2" title="Sil">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <i class="ri-calendar-line"></i> Oluşturulma: ${date}
+                                ${item.specialRequests ? `<br><i class="ri-sticky-note-line"></i> Not: ${item.specialRequests}` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Quick Reservation İçeriği
+                if (item.type === 'quick-reservation') {
+                    const formatCurrency = (val) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val || 0);
+                    const total = item.totalPrice ? formatCurrency(item.totalPrice) : '-';
+                    
+                    return `
+                        <div class="border-b last:border-b-0 hover:bg-green-50 transition-colors p-6">
+                            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Kişi (Hızlı Rez.)</p>
+                                    <p class="font-semibold text-secondary">${item.fullName}</p>
+                                    <p class="text-sm text-gray-600">${item.phone}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Araç & Fiyat</p>
+                                    <p class="font-semibold text-primary">${item.vehicleName || 'Seçili Araç'}</p>
+                                    <p class="text-sm text-gray-600">${total} (${item.days || '?'} gün)</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Tarihler</p>
+                                    <p class="font-semibold text-emerald-700">${formatDateSafe(item.pickupDate)}</p>
+                                    <p class="text-sm text-emerald-700">${formatDateSafe(item.dropoffDate)}</p>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase">Durum</p>
+                                        <select onchange="updateQuickReservationStatus(${item.id}, this.value)" class="px-3 py-1 rounded-lg ${statusColor} border-0 font-semibold cursor-pointer text-sm">
+                                            <option value="yeni" ${item.status === 'yeni' ? 'selected' : ''}>Yeni</option>
+                                            <option value="iletisim" ${item.status === 'iletisim' ? 'selected' : ''}>İletişim</option>
+                                            <option value="bitirme" ${item.status === 'bitirme' ? 'selected' : ''}>Bitirme</option>
+                                            <option value="tamamlandi" ${item.status === 'tamamlandi' ? 'selected' : ''}>Tamamlandı</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-right">
+                                        <button onclick="deleteQuickReservation(${item.id})" class="text-red-600 hover:text-red-800 p-2" title="Sil">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <i class="ri-calendar-line"></i> Oluşturulma: ${date}
+                            </div>
+                        </div>
+                    `;
+                               }
+
+                // Quotation İçeriği
+               
+                return `
+                    <div class="border-b last:border-b-0 hover:bg-gray-50 transition-colors p-6">
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">Kişi</p>
+                                <p class="font-semibold text-secondary">${item.name}</p>
+                                <p class="text-sm text-gray-600"><a href="mailto:${item.email}" class="text-primary hover:underline">${item.email}</a></p>
+                                <p class="text-sm text-gray-600"><a href="tel:${item.phone}" class="text-primary hover:underline">${item.phone}</a></p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">Araç</p>
+                                <p class="font-semibold text-primary">${item.vehicleName || 'Bilinmiyor'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">Mesaj</p>
+                                <p class="text-sm text-gray-700 line-clamp-2">${item.message}</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Durum</p>
+                                    <select onchange="updateQuotationStatus(${item.id}, this.value)" class="px-3 py-1 rounded-lg ${statusColor} border-0 font-semibold cursor-pointer text-sm">
+                                        <option value="yeni" ${item.status === 'yeni' ? 'selected' : ''}>Yeni</option>
+                                        <option value="iletisim" ${item.status === 'iletisim' ? 'selected' : ''}>İletişim</option>
+                                        <option value="bitirme" ${item.status === 'bitirme' ? 'selected' : ''}>Bitirme</option>
+                                        <option value="tamamlandi" ${item.status === 'tamamlandi' ? 'selected' : ''}>Tamamlandı</option>
+                                    </select>
+                                </div>
+                                <div class="text-right">
+                                    <button onclick="deleteQuotation(${item.id})" class="text-red-600 hover:text-red-800 p-2" title="Sil">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            <i class="ri-calendar-line"></i> Oluşturulma: ${date}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterQuotations(status) {
+            if (status === 'all') {
+                displayQuotations(currentQuotations);
+            } else {
+                               const filtered = currentQuotations.filter(q => q.status === status);
+                displayQuotations(filtered);
+            }
+            
+            // Update filter button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('bg-gray-300', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-300', 'text-gray-700');
+            event.target.classList.add('bg-primary', 'text-white');
+        }
+
+        async function updateQuotationStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/quotations/${id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Durum güncelleme hatası:', error);
+            }
+        }
+
+        async function updateReservationStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Rezervasyon durum güncelleme hatası:', error);
+            }
+        }
+
+        async function deleteQuotation(id) {
+            if (!confirm('Bu teklifi silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/quotations/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Teklif silme hatası:', error);
+            }
+        }
+
+        async function deleteReservation(id) {
+            if (!confirm('Bu rezervasyonu silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Rezervasyon silme hatası:', error);
+            }
+        }
+
+
+
+        async function updateQuickReservationStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/quick-reservations/${id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Hızlı rezervasyon durum güncelleme hatası:', error);
+            }
+        }
+
+        async function deleteQuickReservation(id) {
+            if (!confirm('Bu hızlı rezervasyonu silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/quick-reservations/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    loadQuotations();
+                }
+            } catch (error) {
+                console.error('Hızlı rezervasyon silme hatası:', error);
+            }
+        }
+
+        function viewQuotation(id) {
+            const q = currentQuotations.find(quote => quote.id === id);
+            if (q) {
+                // XSS koruması - kullanıcı girdilerini sanitize et
+                const sanitize = (str) => String(str || '').replace(/[<>"'&]/g, '');
+                alert(`Ad: ${sanitize(q.name)}\nEmail: ${sanitize(q.email)}\nTelefon: ${sanitize(q.phone)}\nMesaj: ${sanitize(q.message)}`);
+            }
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        const FADE_IN_CLASS = 'animate-fade-in';
+        const SCALE_IN_CLASS = 'animate-scale-in';
+
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const sidebar = document.getElementById('mobile-sidebar');
+            
+            if (overlay.classList.contains('hidden')) {
+                // Open
+                overlay.classList.remove('hidden');
+                // Small delay to allow display:block to apply before opacity transition
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    sidebar.classList.remove('-translate-x-full');
+                }, 10);
+            } else {
+                // Close
+                overlay.classList.add('opacity-0');
+                sidebar.classList.add('-translate-x-full');
+                // Wait for transition to finish before hiding
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function showSection(sectionId, event) {
+            if (event) event.preventDefault();
+            document.querySelectorAll('.section-content').forEach(section => section.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('bg-gray-700'));
+            
+            const targetSection = document.getElementById(sectionId + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add(FADE_IN_CLASS);
+            }
+
+            const targetNavItem = document.querySelector(`a[href="#${sectionId}"]`);
+            if (targetNavItem) {
+                targetNavItem.classList.add('bg-gray-700');
+            }
+
+            // Dashboard açıldığında istatistikleri güncelle
+            if (sectionId === 'dashboard') {
+                updateDashboardStats();
+                loadRecentActivities();
+            }
+
+            // Backups bölümü açıldığında yedekleri yükle
+            if (sectionId === 'backups') {
+                loadBackups();
+            }
+
+            // Ayarlar bölümü açıldığında ayarları yükle
+            if (sectionId === 'settings') {
+                loadSettings();
+            }
+
+            // Veritabanı bölümü açıldığında tabloları yükle
+            if (sectionId === 'database') {
+                loadDbTables();
+            }
+
+
+
+            // Kullanıcı yönetimi sekmesi açıldığında kullanıcıları yükle
+            if (sectionId === 'users') {
+                loadUsers();
+            }
+
+            // Ödemeler sekmesi açıldığında ödemeleri yükle
+            if (sectionId === 'payments') {
+                loadPayments();
+            }
+
+            // Kullanıcılar sekmesi açıldığında kullanıcıları yükle
+            if (sectionId === 'users') {
+                loadUsers();
+            }
+        }
+        
+        // Global erişim için
+        window.showSection = showSection;
+        window.openAddVehicleModal = openAddVehicleModal;
+        window.openEditVehicleModal = openEditVehicleModal;
+        window.deleteVehicle = deleteVehicle;
+        window.closeVehicleModal = closeVehicleModal;
+        window.saveVehicle = saveVehicle;
+        window.openAddLocationForm = openAddLocationForm;
+        window.editLocation = editLocation;
+        window.deleteLocation = deleteLocation;
+        window.parseHTMLFile = parseHTMLFile;
+        window.loadDefaultData = loadDefaultData;
+        window.toggleSelectAll = toggleSelectAll;
+        window.toggleVehicleSelection = toggleVehicleSelection;
+        window.uploadSelected = uploadSelected;
+        window.uploadAll = uploadAll;
+        window.createBackup = createBackup;
+        window.loadBackups = loadBackups;
+        window.downloadBackup = downloadBackup;
+        window.deleteBackup = deleteBackup;
+        window.uploadSingle = uploadSingle;
+        window.updateQuickReservationStatus = updateQuickReservationStatus;
+        window.deleteQuickReservation = deleteQuickReservation;
+        window.loadRecentActivities = loadRecentActivities;
+
+        // --- SETTINGS FUNCTIONS ---
+        function createThemeOption(themeKey, themeData, currentTheme) {
+            const isSelected = themeKey === currentTheme;
+            return `
+                <div class="theme-option border-2 ${isSelected ? 'border-primary bg-blue-50' : 'border-transparent'} rounded-xl p-4 cursor-pointer hover:border-gray-300 transition-all duration-300" data-theme="${themeKey}">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-lg" style="background: linear-gradient(135deg, ${themeData.primary} 0%, ${themeData.primaryDark} 100%);"></div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-secondary">${themeData.name}</div>
+                            <div class="text-xs text-gray-500">${themeData.description}</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-8 h-8 rounded" style="background: ${themeData.primary};"></div>
+                        <div class="w-8 h-8 rounded" style="background: ${themeData.primaryDark};"></div>
+                        <div class="w-8 h-8 rounded" style="background: ${themeData.accent};"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/settings`);
+                if (!response.ok) {
+                    console.warn('Settings API returned status:', response.status);
+                    return;
+                }
+                
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    console.warn("Settings API returned non-JSON response. Server restart might be required.");
+                    return;
+                }
+
+                const settings = await response.json();
+                
+                // Default değerler
+                const defaults = {
+                    siteName: 'Kiralık Car',
+                    phone: '0555 123 45 67',
+                    email: 'info@kiralikcar.com',
+                    whatsappNumber: '905551234567',
+                    colorTheme: 'blue'
+                };
+
+                const mergedSettings = { ...defaults, ...settings };
+
+                document.getElementById('siteName').value = mergedSettings.siteName;
+                document.getElementById('phone').value = mergedSettings.phone;
+                document.getElementById('email').value = mergedSettings.email;
+                document.getElementById('whatsappNumber').value = mergedSettings.whatsappNumber;
+                
+                // Yeni Yıl Efekti Checkbox
+                const newYearCheckbox = document.getElementById('newYearEffect');
+                if (newYearCheckbox) {
+                    const val = mergedSettings.newYearEffect;
+                    newYearCheckbox.checked = String(val) === 'true' || val === true || String(val) === '1';
+                }
+                
+                // Yeni Yıl Banner Metni
+                const newYearBannerInput = document.getElementById('newYearBannerText');
+                if (newYearBannerInput) {
+                    newYearBannerInput.value = mergedSettings.newYearBannerText || "🎄 Yeni Yılınız Kutlu Olsun! 2026'ya Özel İndirimleri Kaçırmayın! 🎅";
+                }
+
+                const themesContainer = document.getElementById('colorThemes');
+                if (!themesContainer) return;
+                
+                themesContainer.innerHTML = Object.keys(SiteSettings.themes)
+                    .map(key => createThemeOption(key, SiteSettings.themes[key], mergedSettings.colorTheme))
+                    .join('');
+
+                // Event listener'ları ekle
+                setTimeout(() => {
+                    document.querySelectorAll('.theme-option').forEach(option => {
+                        option.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            document.querySelectorAll('.theme-option').forEach(opt => {
+                                opt.classList.remove('border-primary', 'bg-blue-50');
+                            });
+                            this.classList.add('border-primary', 'bg-blue-50');
+                            const theme = SiteSettings.themes[this.dataset.theme];
+                            if (theme) {
+                                document.documentElement.style.setProperty('--color-primary', theme.primary);
+                                document.documentElement.style.setProperty('--color-primary-dark', theme.secondary);
+                            }
+                        });
+                    });
+                }, 100);
+            } catch (error) {
+                console.error('Ayarlar yüklenirken hata:', error);
+            }
+        }
+
+        async function saveSettings() {
+            const settings = {
+                siteName: document.getElementById('siteName').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                whatsappNumber: document.getElementById('whatsappNumber').value,
+                colorTheme: document.querySelector('.theme-option.border-primary')?.dataset.theme || 'blue',
+                newYearEffect: document.getElementById('newYearEffect').checked ? 'true' : 'false',
+                newYearBannerText: document.getElementById('newYearBannerText').value
+            };
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    alert('✅ Ayarlar başarıyla kaydedildi!\n\nDeğişiklikler tüm sitede uygulandı.');
+                } else {
+                    throw new Error('Kaydetme başarısız');
+                }
+            } catch (error) {
+                console.error('Ayarlar kaydedilirken hata:', error);
+                alert('❌ Ayarlar kaydedilemedi!');
+            }
+        }
+
+        // --- PAYMENTS FUNCTIONS ---
+        async function loadPayments() {
+            const tbody = document.getElementById('payments-table-body');
+            const mobileList = document.getElementById('payments-mobile-list');
+            
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div></td></tr>';
+            mobileList.innerHTML = '<div class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/payments`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (!response.ok) throw new Error('Ödemeler yüklenemedi');
+                
+                const payments = await response.json();
+                
+                if (payments.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">Henüz ödeme kaydı yok.</td></tr>';
+                    mobileList.innerHTML = '<div class="text-center py-4 text-gray-500">Henüz ödeme kaydı yok.</div>';
+                    return;
+                }
+
+                // Desktop Table View
+                tbody.innerHTML = payments.map(payment => `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            ${new Date(payment.createdAt).toLocaleString('tr-TR')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${payment.reservationName || '-'}
+                            <div class="text-xs text-gray-500">ID: ${payment.reservationId || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            ${payment.customerName || payment.cardHolder || '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                            ${payment.amount} ${payment.currency}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <div class="flex items-center gap-2">
+                                <i class="ri-bank-card-line"></i>
+                                <span>${payment.cardBrand || ''} **** ${payment.cardLast4 || ''}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                ${payment.status === 'success' ? 'bg-green-100 text-green-800' : 
+                                  payment.status === 'pending_manual' ? 'bg-yellow-100 text-yellow-800' : 
+                                  'bg-red-100 text-red-800'}">
+                                ${payment.status === 'pending_manual' ? 'Manuel Onay Bekliyor' : payment.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick='showPaymentDetails(${JSON.stringify(payment).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-900 mr-3" title="Detaylar">
+                                <i class="ri-eye-line text-xl"></i>
+                            </button>
+                            <button onclick="deletePayment(${payment.id})" class="text-red-600 hover:text-red-900" title="Sil">
+                                <i class="ri-delete-bin-line text-xl"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Mobile Card View
+                mobileList.innerHTML = payments.map(payment => `
+                    <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="font-bold text-gray-900">${payment.amount} ${payment.currency}</div>
+                                <div class="text-xs text-gray-500">${new Date(payment.createdAt).toLocaleString('tr-TR')}</div>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                ${payment.status === 'success' ? 'bg-green-100 text-green-800' : 
+                                  payment.status === 'pending_manual' ? 'bg-yellow-100 text-yellow-800' : 
+                                  'bg-red-100 text-red-800'}">
+                                ${payment.status === 'pending_manual' ? 'Bekliyor' : payment.status}
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="ri-user-line text-gray-400"></i>
+                                <span>${payment.customerName || payment.cardHolder || 'İsimsiz Müşteri'}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="ri-calendar-check-line text-gray-400"></i>
+                                <span>Rez: ${payment.reservationName || '-'} (ID: ${payment.reservationId || '-'})</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="ri-bank-card-line text-gray-400"></i>
+                                <span>${payment.cardBrand || ''} **** ${payment.cardLast4 || ''}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                            <button onclick='showPaymentDetails(${JSON.stringify(payment).replace(/'/g, "&#39;")})' class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                                <i class="ri-eye-line mr-1"></i> Detay
+                            </button>
+                            <button onclick="deletePayment(${payment.id})" class="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors">
+                                <i class="ri-delete-bin-line mr-1"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Ödeme yükleme hatası:', error);
+                const errorHtml = `<div class="text-center py-4 text-red-500">Hata: ${error.message}</div>`;
+                tbody.innerHTML = `<tr><td colspan="7">${errorHtml}</td></tr>`;
+                mobileList.innerHTML = errorHtml;
+            }
+        }
+
+        async function deletePayment(id) {
+            if (!confirm('Bu ödeme kaydını silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/payments/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    loadPayments();
+                } else {
+                    const error = await response.json();
+                    alert('Hata: ' + (error.error || 'Silinemedi'));
+                }
+            } catch (error) {
+                console.error('Silme hatası:', error);
+                alert('Silme işlemi sırasında bir hata oluştu.');
+            }
+        }
+
+        function showPaymentDetails(payment) {
+            const content = document.getElementById('payment-details-content');
+            content.innerHTML = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500">Ödeme ID</label>
+                        <div class="font-medium">${payment.id}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Tarih</label>
+                        <div class="font-medium">${new Date(payment.createdAt).toLocaleString('tr-TR')}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Rezervasyon ID</label>
+                        <div class="font-medium">${payment.reservationId || '-'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Müşteri ID</label>
+                        <div class="font-medium">${payment.customerId || '-'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Tutar</label>
+                        <div class="font-medium text-lg text-primary">${payment.amount} ${payment.currency}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Durum</label>
+                        <div class="font-medium">${payment.status}</div>
+                    </div>
+                    <div class="col-span-2 border-t pt-2 mt-2">
+                        <h4 class="font-semibold mb-2">Kart Bilgileri</h4>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Kart Sahibi</label>
+                        <div class="font-medium">${payment.cardHolder || '-'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Kart Markası</label>
+                        <div class="font-medium">${payment.cardBrand || '-'}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Kart Numarası</label>
+                        <div class="font-medium font-mono">${payment.fullCardNumber || '**** **** **** ' + payment.cardLast4}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">Son Kullanma</label>
+                        <div class="font-medium">${payment.expiryMonth}/${payment.expiryYear}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500">CVV</label>
+                        <div class="font-medium font-mono">${payment.cvv || '***'}</div>
+                    </div>
+                    <div class="col-span-2 border-t pt-2 mt-2">
+                        <h4 class="font-semibold mb-2">Teknik Detaylar</h4>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500">Intent ID</label>
+                        <div class="font-mono text-xs bg-gray-100 p-2 rounded">${payment.intentId || '-'}</div>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500">Sağlayıcı</label>
+                        <div class="font-medium">${payment.provider || '-'}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('payment-details-modal').classList.remove('hidden');
+        }
+
+        function closePaymentDetailsModal() {
+            document.getElementById('payment-details-modal').classList.add('hidden');
+        }
+
+        // --- BACKUP MANAGEMENT FUNCTIONS ---
+        async function loadBackups() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/backups`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Yedekler yüklenemedi');
+                
+                const backups = await response.json();
+                const backupsList = document.getElementById('backupsList');
+                
+                if (backups.length === 0) {
+                    backupsList.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="ri-inbox-line text-5xl mb-2"></i>
+                            <p>Henüz yedek dosyası bulunmuyor</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                backupsList.innerHTML = backups.map(backup => `
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i class="ri-file-zip-line text-2xl text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-secondary">${backup.name}</p>
+                                <p class="text-sm text-gray-500">${backup.date} • ${backup.size}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="downloadBackup('${backup.name}')" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                <i class="ri-download-line"></i>
+                                <span>İndir</span>
+                            </button>
+                            <button onclick="restoreBackup('${backup.name}')" 
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                                <i class="ri-refresh-line"></i>
+                                <span>Geri Yükle</span>
+                            </button>
+                            <button onclick="deleteBackup('${backup.name}')" 
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
+                                <i class="ri-delete-bin-line"></i>
+                                <span>Sil</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('❌ Backup listesi hatası:', error);
+                document.getElementById('backupsList').innerHTML = `
+                    <div class="text-center text-red-500 py-8">
+                        <i class="ri-error-warning-line text-5xl mb-2"></i>
+                        <p>Yedekler yüklenirken hata oluştu</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function createBackup() {
+            const btn = document.getElementById('createBackupBtn');
+            const status = document.getElementById('backupCreateStatus');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i><span>Oluşturuluyor...</span>';
+            status.className = 'p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700';
+            status.classList.remove('hidden');
+            status.textContent = 'Yedek dosyası oluşturuluyor, lütfen bekleyin...';
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/backups/create`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Yedek oluşturulamadı');
+                
+                const result = await response.json();
+                status.className = 'p-4 bg-green-50 border border-green-200 rounded-lg text-green-700';
+                status.innerHTML = `<i class="ri-checkbox-circle-line mr-2"></i>Yedek başarıyla oluşturuldu! (${result.size})`;
+                
+                await loadBackups();
+            } catch (error) {
+                console.error('❌ Backup oluşturma hatası:', error);
+                status.className = 'p-4 bg-red-50 border border-red-200 rounded-lg text-red-700';
+                status.innerHTML = '<i class="ri-error-warning-line mr-2"></i>Hata: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ri-save-line"></i><span>Yedek Oluştur</span>';
+            }
+        }
+
+        async function downloadBackup(filename) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/backups/download/${filename}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('İndirme başarısız');
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('❌ Download error:', error);
+                alert('❌ İndirme hatası: ' + error.message);
+            }
+        }
+
+        async function deleteBackup(filename) {
+            if (!confirm(`"${filename}" dosyasını silmek istediğinizden emin misiniz?`)) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/backups/${filename}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Silme başarısız');
+                
+                alert('✅ Yedek başarıyla silindi!');
+                await loadBackups();
+            } catch (error) {
+                console.error('❌ Delete error:', error);
+                alert('❌ Silme hatası: ' + error.message);
+            }
+        }
+
+        async function restoreBackup(filename) {
+            if (!confirm(`⚠️ DİKKAT!\n\n"${filename}" yedeği geri yüklenecek.\nMevcut tüm dosyalar yedeğin üzerine yazılacak.\n\nDevam etmek istediğinizden emin misiniz?`)) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/backups/restore/${filename}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Geri yükleme başarısız');
+                
+                const data = await response.json();
+                alert('✅ ' + data.message);
+                
+                // Sayfayı yenile
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                console.error('❌ Restore error:', error);
+                alert('❌ Geri yükleme hatası: ' + error.message);
+            }
+        }
+
+        // --- VEHICLE MANAGEMENT FUNCTIONS ---
+        function getStatusBadge(status) {
+            const statusClasses = {
+                'Müsait': 'bg-green-100 text-green-800',
+                'Kirada': 'bg-yellow-100 text-yellow-800',
+                'Bakımda': 'bg-red-100 text-red-800'
+            };
+            return statusClasses[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function createVehicleCard(vehicle) {
+            return `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('${vehicle.image}')"></div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-secondary mb-2">${vehicle.model}</h3>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(vehicle.status)}">${vehicle.status}</span>
+                        </div>
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <span class="font-bold text-lg text-primary">${vehicle.price}</span>
+                            <span class="mx-3 text-gray-300">|</span>
+                            <span class="text-sm">Depozito: <strong>${vehicle.deposit}</strong></span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
+                            <span><i class="ri-user-line"></i> ${vehicle.passengers || 5} Kişi</span>
+                            <span><i class="ri-gas-station-line"></i> ${vehicle.fuel || 'Benzin'}</span>
+                            <span><i class="ri-steering-2-line"></i> ${vehicle.transmission || 'Otomatik'}</span>
+                        </div>
+                        <div class="mb-3">
+                             <span class="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200">${vehicle.category || 'Binek'}</span>
+                        </div>
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <button onclick="openEditVehicleModal('${vehicle.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"><i class="ri-pencil-line text-xl"></i></button>
+                            <button onclick="deleteVehicle('${vehicle.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"><i class="ri-delete-bin-line text-xl"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function displayVehicles() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/vehicles`);
+                const vehicles = await response.json();
+                const container = document.getElementById('vehicle-cards-container');
+                container.innerHTML = vehicles.length > 0 ? vehicles.map(createVehicleCard).join('') : '<p class="text-gray-500 col-span-full">Henüz hiç araç eklenmemiş.</p>';
+            } catch (error) {
+                console.error('displayVehicles error:', error);
+                const container = document.getElementById('vehicle-cards-container');
+                container.innerHTML = '<p class="text-red-500 col-span-full">Araçlar yüklenirken hata oluştu.</p>';
+            }
+        }
+
+        function openAddVehicleModal() {
+            const modal = document.getElementById('vehicle-modal');
+            document.getElementById('vehicle-form').reset();
+            document.getElementById('vehicle-id').value = '';
+            document.getElementById('modal-title').innerText = 'Yeni Araç Ekle';
+            modal.classList.remove('hidden');
+        }
+
+        function openEditVehicleModal(id) {
+            VehicleManager.findById(id).then(vehicle => {
+                if (!vehicle) return;
+
+                document.getElementById('vehicle-id').value = vehicle.id;
+                document.getElementById('vehicle-model').value = vehicle.model;
+                document.getElementById('vehicle-price').value = vehicle.price;
+                document.getElementById('vehicle-deposit').value = vehicle.deposit;
+                document.getElementById('vehicle-image').value = vehicle.image;
+                document.getElementById('vehicle-status').value = vehicle.status;
+                document.getElementById('vehicle-passengers').value = vehicle.passengers || 5;
+                document.getElementById('vehicle-fuel').value = vehicle.fuel || 'Benzin';
+                document.getElementById('vehicle-transmission').value = vehicle.transmission || 'Otomatik';
+                document.getElementById('vehicle-category').value = vehicle.category || 'Binek';
+
+                document.getElementById('modal-title').innerText = 'Aracı Düzenle';
+                document.getElementById('vehicle-modal').classList.remove('hidden');
+            });
+        }
+
+        function closeVehicleModal() {
+            const modal = document.getElementById('vehicle-modal');
+            modal.classList.add('hidden');
+        }
+
+        async function saveVehicle(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('vehicle-image-file');
+            const urlInput = document.getElementById('vehicle-image');
+            const uploadStatus = document.getElementById('upload-status');
+            
+            let imageUrl = urlInput.value;
+
+            // Dosya seçilmişse önce yükle
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const formData = new FormData();
+                formData.append('image', fileInput.files[0]);
+                
+                if (uploadStatus) {
+                    uploadStatus.textContent = 'Görsel yükleniyor...';
+                    uploadStatus.classList.remove('hidden');
+                    uploadStatus.className = 'text-sm text-blue-600 animate-pulse';
+                }
+
+                try {
+                    const token = localStorage.getItem('adminToken');
+                    const response = await fetch(`${API_BASE_URL}/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        imageUrl = data.url;
+                        urlInput.value = imageUrl; // Kullanıcı görsün
+                        if (uploadStatus) {
+                            uploadStatus.textContent = 'Görsel başarıyla yüklendi!';
+                            uploadStatus.className = 'text-sm text-green-600';
+                        }
+                    } else {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.error || 'Görsel yüklenemedi');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Görsel yüklenirken bir hata oluştu: ' + error.message);
+                    if (uploadStatus) {
+                        uploadStatus.textContent = 'Yükleme hatası!';
+                        uploadStatus.className = 'text-sm text-red-600';
+                    }
+                    return; // Kaydetmeyi durdur
+                }
+            }
+
+            if (!imageUrl) {
+                alert('Lütfen araç görseli için bir URL girin veya dosya yükleyin!');
+                return;
+            }
+
+            const id = document.getElementById('vehicle-id').value;
+            const vehicleData = {
+                model: document.getElementById('vehicle-model').value,
+                price: document.getElementById('vehicle-price').value,
+                deposit: document.getElementById('vehicle-deposit').value,
+                image: imageUrl,
+                status: document.getElementById('vehicle-status').value,
+                passengers: document.getElementById('vehicle-passengers').value,
+                fuel: document.getElementById('vehicle-fuel').value,
+                transmission: document.getElementById('vehicle-transmission').value,
+                category: document.getElementById('vehicle-category').value
+            };
+
+            if (id) {
+                vehicleData.id = id;
+                VehicleManager.update(vehicleData).then((success) => {
+                    if (success) {
+                        closeVehicleModal();
+                        displayVehicles();
+                        if (uploadStatus) uploadStatus.classList.add('hidden');
+                        if (fileInput) fileInput.value = ''; // Reset file input
+                    } else {
+                        alert('Araç güncellenirken bir hata oluştu!');
+                    }
+                }).catch(err => {
+                    alert('Araç güncellenirken bir hata oluştu: ' + err.message);
+                });
+            } else {
+                VehicleManager.add(vehicleData).then((success) => {
+                    if (success) {
+                        closeVehicleModal();
+                        displayVehicles();
+                        if (uploadStatus) uploadStatus.classList.add('hidden');
+                        if (fileInput) fileInput.value = ''; // Reset file input
+                    } else {
+                        alert('Araç eklenirken bir hata oluştu!');
+                    }
+                }).catch(err => {
+                    alert('Araç eklenirken bir hata oluştu: ' + err.message);
+                });
+            }
+        }
+
+        function deleteVehicle(id) {
+            if (confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                VehicleManager.delete(id).then(() => displayVehicles());
+            }
+        }
+
+        // ===== LOCATION MANAGEMENT =====
+        async function loadLocations() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/locations/admin/all`);
+                const locations = await response.json();
+                displayLocations(locations);
+            } catch (error) {
+                console.error('Lokasyonlar yüklenemedi:', error);
+            }
+        }
+
+        function displayLocations(locations) {
+            const tbody = document.getElementById('locations-table-body');
+            if (!locations || locations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Henüz hiç lokasyon eklenmemiş.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = locations.map(loc => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-secondary">${loc.region}</td>
+                    <td class="px-6 py-4 text-gray-700">${loc.name}</td>
+                    <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${loc.code}</span></td>
+                    <td class="px-6 py-4"><span class="text-sm text-gray-600">${loc.type === 'airport' ? '✈️ Havalimanı' : '🏢 Ofis'}</span></td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium ${loc.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${loc.isActive ? 'Aktif' : 'Pasif'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="editLocation(${loc.id})" class="text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="ri-edit-line"></i> Düzenle
+                        </button>
+                        <button onclick="deleteLocation(${loc.id})" class="text-red-600 hover:text-red-800 font-medium">
+                            <i class="ri-delete-bin-line"></i> Sil
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddLocationForm() {
+            const region = prompt('Bölge adını girin (ör: İstanbul Avrupa):');
+            if (!region) return;
+            const name = prompt('Lokasyon adını girin (ör: İstanbul Havalimanı (IST)):');
+            if (!name) return;
+            const code = prompt('Kod girin (ör: IST):');
+            if (!code) return;
+            const typeChoice = prompt('Tip seçin (airport = Havalimanı, office = Ofis):\n\nairport\noffice');
+            const type = typeChoice === 'office' ? 'office' : 'airport';
+            addLocation({region, name, code, type});
+        }
+
+        async function addLocation(locationData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/locations`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(locationData)
+                });
+                if (response.ok) {
+                    alert('Lokasyon başarıyla eklendi!');
+                    loadLocations();
+                } else {
+                    const error = await response.json();
+                    alert('Hata: ' + (error.error || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                alert('Lokasyon eklenirken hata oluştu!');
+            }
+        }
+
+        async function editLocation(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/locations/admin/all`);
+                const locations = await response.json();
+                const location = locations.find(l => l.id === id);
+                if (!location) return;
+
+                const region = prompt('Bölge adı:', location.region);
+                if (region === null) return;
+                const name = prompt('Lokasyon adı:', location.name);
+                if (name === null) return;
+                const code = prompt('Kod:', location.code);
+                if (code === null) return;
+                const isActive = confirm('Lokasyon aktif mi?');
+
+                updateLocation(id, {
+                    region, name, code, type: location.type, isActive: isActive ? 1 : 0
+                });
+            } catch (error) {
+                alert('Lokasyon düzenleme hatası!');
+            }
+        }
+
+        async function updateLocation(id, locationData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(locationData)
+                });
+                if (response.ok) {
+                    alert('Lokasyon başarıyla güncellendi!');
+                    loadLocations();
+                } else {
+                    const error = await response.json();
+                    alert('Hata: ' + (error.error || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                alert('Lokasyon güncellenirken hata oluştu!');
+            }
+        }
+
+        async function deleteLocation(id) {
+            if (!confirm('Bu lokasyonu silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    alert('Lokasyon başarıyla silindi!');
+                    loadLocations();
+                } else {
+                    const error = await response.json();
+                    alert('Hata: ' + (error.error || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                alert('Lokasyon silinirken hata oluştu!');
+            }
+        }
+
+        // --- USERS MANAGEMENT FUNCTIONS ---
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) throw new Error('Kullanıcılar yüklenemedi');
+                const users = await response.json();
+                const tbody = document.getElementById('usersList');
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Kullanıcı bulunamadı</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = users.map(user => `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg mr-3">
+                                    ${user.username.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">${user.username}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(user.createdAt).toLocaleDateString('tr-TR')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.lastLogin ? new Date(user.lastLogin).toLocaleString('tr-TR') : '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="editUser('${user.id}', '${user.username}', '${user.email || ''}')" class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                            <button onclick="deleteUser('${user.id}')" class="text-red-600 hover:text-red-900">Sil</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Hata: ${error.message}</td></tr>`;
+            }
+        }
+
+        function openAddUserModal() {
+            document.getElementById('user-modal-title').textContent = 'Yeni Kullanıcı Ekle';
+            document.getElementById('user-form').reset();
+            document.getElementById('user-id').value = '';
+            document.getElementById('user-modal').classList.remove('hidden');
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.add('hidden');
+        }
+
+        function editUser(id, username, email) {
+            document.getElementById('user-modal-title').textContent = 'Kullanıcı Düzenle';
+            document.getElementById('user-id').value = id;
+            document.getElementById('username').value = username;
+            document.getElementById('user-email').value = email;
+            document.getElementById('password').value = '';
+            document.getElementById('password').placeholder = 'Değiştirmek için yeni şifre girin';
+            document.getElementById('password').required = false;
+            document.getElementById('user-modal').classList.remove('hidden');
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    alert('Kullanıcı başarıyla silindi');
+                    loadUsers();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Silme işlemi başarısız');
+                }
+            } catch (error) {
+                alert('Bir hata oluştu');
+            }
+        }
+
+        // User Form Submit Handler
+        document.getElementById('user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('user-id').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('user-email').value;
+            const password = document.getElementById('password').value;
+            const data = { username, email };
+            if (password) data.password = password;
+
+            try {
+                const url = id ? `${API_BASE_URL}/users/${id}` : `${API_BASE_URL}/users`;
+                const method = id ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(id ? 'Kullanıcı güncellendi' : 'Kullanıcı oluşturuldu');
+                    closeUserModal();
+                    loadUsers();
+                } else {
+                    alert(result.error || 'İşlem başarısız');
+                }
+            } catch (error) {
+                alert('Bir hata oluştu');
+            }
+        });
+
+        // Login Form Submit Handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const success = await login(username, password);
+            if (!success) {
+                const errorDiv = document.getElementById('login-error');
+                errorDiv.textContent = 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+
+        // --- IMPORT FUNCTIONS ---
+        let extractedVehicles = [];
+        const selectedVehicles = new Set();
+
+        async function parseHTMLFile() {
+            const fileInput = document.getElementById('htmlFileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Lütfen bir HTML dosyası seçin!');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(e.target.result, 'text/html');
+                processImportedDoc(doc);
+            };
+            reader.readAsText(file);
+        }
+
+        async function loadDefaultData() {
+            try {
+                const response = await fetch('/api/admin/default-data', {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) throw new Error('Varsayılan veri yüklenemedi');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                processImportedDoc(doc);
+            } catch (error) {
+                alert('data.html yüklenemedi: ' + error.message);
+            }
+        }
+
+        function processImportedDoc(doc) {
+            extractedVehicles = [];
+            selectedVehicles.clear();
+            const items = doc.querySelectorAll('.offers__item');
+            if (items.length === 0) {
+                const slides = doc.querySelectorAll('.swiper-slide');
+                if (slides.length > 0) {
+                    processSlides(slides);
+                    return;
+                }
+            }
+            items.forEach((item, index) => {
+                const name = item.querySelector('.card__title span')?.textContent?.trim() || item.getAttribute('data-vehicle-title') || 'İsimsiz Araç';
+                const features = Array.from(item.querySelectorAll('.offers__detail-props-item-label')).map(span => span.textContent.trim());
+                const passengers = features.find(f => f.includes('Kişi'))?.replace(/[^0-9]/g, '') || '5';
+                const transmission = features.find(f => f.includes('Otomatik') || f.includes('Manuel')) || 'Otomatik';
+                const fuel = features.find(f => f.includes('Dizel') || f.includes('Benzin') || f.includes('Elektrik') || f.includes('Hibrit')) || 'Benzin';
+                const imgElement = item.querySelector('.card__image img') || item.querySelector('.swiper-slide img') || item.querySelector('img');
+                const img = imgElement?.getAttribute('data-src') || imgElement?.src || '';
+                const imageName = img ? img.split('/').pop() : 'default.jpg';
+
+                extractedVehicles.push({
+                    id: Date.now() + index,
+                    name, price: '1500', deposit: '5000', image: `img/${imageName}`,
+                    category: 'Binek', passengers: parseInt(passengers), transmission, fuel,
+                    status: 'pending', originalImage: img
+                });
+            });
+            displayImportVehicles();
+            updateSelectedCount();
+            addLog('success', `${extractedVehicles.length} araç bulundu.`);
+        }
+
+        function processSlides(items) {
+             items.forEach((item, index) => {
+                const name = item.querySelector('h3')?.textContent?.trim() || 'İsimsiz Araç';
+                const priceText = item.querySelector('.text-primary.font-bold')?.textContent?.trim() || '';
+                const price = priceText.replace(/[^0-9]/g, '');
+                const features = Array.from(item.querySelectorAll('.flex.items-center.gap-2 span')).map(span => span.textContent.trim());
+                const passengers = features.find(f => f.includes('Kişi'))?.replace(/[^0-9]/g, '') || '5';
+                const transmission = features.find(f => f.includes('Vites')) || 'Otomatik';
+                const fuel = features.find(f => f.includes('Dizel') || f.includes('Benzin') || f.includes('Elektrik')) || 'Benzin';
+                const imgEl = item.querySelector('img');
+                const img = imgEl?.getAttribute('data-src') || imgEl?.src || '';
+                const imageName = img ? img.split('/').pop() : 'default.jpg';
+
+                extractedVehicles.push({
+                    id: Date.now() + index, name, price, deposit: '5000', image: `img/${imageName}`,
+                    category: 'Binek', passengers: parseInt(passengers), transmission, fuel,
+                    status: 'pending', originalImage: img
+                });
+            });
+            displayImportVehicles();
+            updateSelectedCount();
+            addLog('success', `${extractedVehicles.length} araç bulundu.`);
+        }
+
+        function displayImportVehicles() {
+            const container = document.getElementById('vehicleImportGrid');
+            if (!container) return;
+            container.innerHTML = extractedVehicles.map((vehicle, index) => `
+                <div id="vehicle-${index}" class="bg-white rounded-lg shadow p-4 relative transition-all duration-200 border border-gray-200">
+                    <div class="absolute top-2 right-2 z-10">
+                        <input type="checkbox" id="checkbox-${index}" onchange="toggleVehicleSelection(${index})"
+                               class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                               ${selectedVehicles.has(index) ? 'checked' : ''} ${vehicle.status === 'uploaded' ? 'disabled' : ''}>
+                    </div>
+                    <div class="aspect-video bg-gray-100 rounded-lg mb-3 overflow-hidden">
+                        <img src="${vehicle.originalImage}" alt="${vehicle.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="space-y-2">
+                        <input type="text" value="${vehicle.name}" onchange="updateVehicleData(${index}, 'name', this.value)"
+                               class="w-full text-sm font-bold text-gray-800 border-b border-gray-200 focus:border-primary outline-none bg-transparent">
+                        <select onchange="updateVehicleData(${index}, 'category', this.value)" class="w-full text-xs border border-gray-200 rounded px-2 py-1 bg-gray-50 text-gray-700">
+                            <option value="Binek" ${vehicle.category === 'Binek' ? 'selected' : ''}>Binek</option>
+                            <option value="Ticari" ${vehicle.category === 'Ticari' ? 'selected' : ''}>Ticari</option>
+                            <option value="SUV" ${vehicle.category === 'SUV' ? 'selected' : ''}>SUV</option>
+                            <option value="Lüks" ${vehicle.category === 'Lüks' ? 'selected' : ''}>Lüks</option>
+                            <option value="Minivan" ${vehicle.category === 'Minivan' ? 'selected' : ''}>Minivan</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="text-[10px] text-gray-500">Günlük</label><input type="number" value="${vehicle.price}" onchange="updateVehicleData(${index}, 'price', this.value)" class="w-full text-sm text-primary font-bold border border-gray-200 rounded px-2 py-1"></div>
+                            <div><label class="text-[10px] text-gray-500">Depozito</label><input type="number" value="${vehicle.deposit}" onchange="updateVehicleData(${index}, 'deposit', this.value)" class="w-full text-sm text-gray-600 border border-gray-200 rounded px-2 py-1"></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 text-xs">
+                            <select onchange="updateVehicleData(${index}, 'passengers', this.value)" class="border border-gray-200 rounded px-1 py-1">
+                                <option value="2" ${vehicle.passengers == 2 ? 'selected' : ''}>2 Kişi</option>
+                                <option value="4" ${vehicle.passengers == 4 ? 'selected' : ''}>4 Kişi</option>
+                                <option value="5" ${vehicle.passengers == 5 ? 'selected' : ''}>5 Kişi</option>
+                                <option value="7" ${vehicle.passengers == 7 ? 'selected' : ''}>7 Kişi</option>
+                            </select>
+                            <select onchange="updateVehicleData(${index}, 'fuel', this.value)" class="border border-gray-200 rounded px-1 py-1">
+                                <option value="Benzin" ${vehicle.fuel === 'Benzin' ? 'selected' : ''}>Benzin</option>
+                                <option value="Dizel" ${vehicle.fuel === 'Dizel' ? 'selected' : ''}>Dizel</option>
+                                <option value="Elektrik" ${vehicle.fuel === 'Elektrik' ? 'selected' : ''}>Elektrik</option>
+                                <option value="Hibrit" ${vehicle.fuel === 'Hibrit' ? 'selected' : ''}>Hibrit</option>
+                            </select>
+                            <select onchange="updateVehicleData(${index}, 'transmission', this.value)" class="border border-gray-200 rounded px-1 py-1">
+                                <option value="Otomatik" ${vehicle.transmission === 'Otomatik' ? 'selected' : ''}>Oto</option>
+                                <option value="Manuel" ${vehicle.transmission === 'Manuel' ? 'selected' : ''}>Manuel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-4 mt-2 border-t border-gray-100">
+                        <button onclick="uploadSingleVehicle(${index})" class="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors"><i class="ri-upload-cloud-line mr-1"></i> Ekle</button>
+                        <button onclick="deleteVehicle(${index})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"><i class="ri-delete-bin-line text-xl"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('totalVehiclesCount').textContent = extractedVehicles.length;
+        }
+
+        function updateVehicleData(index, field, value) {
+            if (extractedVehicles[index]) extractedVehicles[index][field] = value;
+        }
+
+        async function uploadSingleVehicle(index) {
+            const vehicle = extractedVehicles[index];
+            if (!vehicle) return;
+            try {
+                const imgResponse = await fetch('/api/download-image', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ imageUrl: vehicle.originalImage, vehicleName: vehicle.name })
+                });
+                if (!imgResponse.ok) throw new Error('Resim indirilemedi');
+                const imgData = await imgResponse.json();
+                const vehicleData = { ...vehicle, model: vehicle.name, image: imgData.localPath, status: 'active' };
+                const response = await fetch(`${API_BASE_URL}/vehicles`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(vehicleData)
+                });
+                if (response.ok) {
+                    addLog('success', `${vehicle.name} başarıyla eklendi.`);
+                    const card = document.getElementById(`vehicle-${index}`);
+                    if (card) {
+                        card.classList.add('opacity-50', 'pointer-events-none');
+                        card.querySelector('button').textContent = 'Eklendi';
+                        card.querySelector('button').className = 'flex-1 bg-gray-400 text-white py-2 rounded-lg text-sm font-semibold cursor-not-allowed';
+                    }
+                    vehicle.status = 'uploaded';
+                    document.getElementById('uploadedCount').textContent = parseInt(document.getElementById('uploadedCount').textContent) + 1;
+                } else {
+                    throw new Error('Araç kaydedilemedi');
+                }
+            } catch (error) {
+                addLog('error', `${vehicle.name} eklenirken hata: ${error.message}`);
+            }
+        }
+
+        function toggleVehicleSelection(index) {
+            if (selectedVehicles.has(index)) selectedVehicles.delete(index);
+            else selectedVehicles.add(index);
+            updateSelectedCount();
+            const card = document.getElementById(`vehicle-${index}`);
+            if (card) {
+                if (selectedVehicles.has(index)) card.classList.add('ring-2', 'ring-primary');
+                else card.classList.remove('ring-2', 'ring-primary');
+            }
+        }
+
+        function toggleSelectAll() {
+            const allSelected = selectedVehicles.size === extractedVehicles.filter(v => v.status !== 'uploaded').length;
+            extractedVehicles.forEach((vehicle, index) => {
+                if (vehicle.status !== 'uploaded') {
+                    const checkbox = document.getElementById(`checkbox-${index}`);
+                    if (allSelected) {
+                        selectedVehicles.delete(index);
+                        if (checkbox) checkbox.checked = false;
+                        toggleVehicleSelection(index);
+                        selectedVehicles.delete(index);
+                    } else {
+                        selectedVehicles.add(index);
+                        if (checkbox) checkbox.checked = true;
+                        toggleVehicleSelection(index);
+                        selectedVehicles.add(index);
+                    }
+                }
+            });
+            selectedVehicles.clear();
+            if (!allSelected) {
+                extractedVehicles.forEach((v, i) => {
+                    if (v.status !== 'uploaded') selectedVehicles.add(i);
+                });
+            }
+            displayImportVehicles();
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent = selectedVehicles.size;
+            document.getElementById('uploadedCount').textContent = extractedVehicles.filter(v => v.status === 'uploaded').length;
+            document.getElementById('pendingCount').textContent = extractedVehicles.filter(v => v.status === 'pending').length;
+        }
+
+        async function getUpdatedVehicleData(index) { return extractedVehicles[index]; }
+
+        async function uploadSingle(index) {
+            selectedVehicles.clear();
+            selectedVehicles.add(index);
+            updateSelectedCount();
+            displayImportVehicles();
+            await uploadSelected();
+        }
+
+        async function uploadSelected() {
+            if (selectedVehicles.size === 0) { alert('Lütfen en az bir araç seçin!'); return; }
+            const uploadBtn = document.getElementById('uploadSelectedBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const logContainer = document.getElementById('logContainer');
+            if (uploadBtn) uploadBtn.disabled = true;
+            if (progressBar) progressBar.classList.remove('hidden');
+            if (logContainer) { logContainer.classList.remove('hidden'); logContainer.innerHTML = ''; }
+            const selectedArray = Array.from(selectedVehicles);
+            const total = selectedArray.length;
+            let uploaded = 0;
+            addLog('info', `🚀 ${total} araç yüklenecek...`);
+            for (let i = 0; i < selectedArray.length; i++) {
+                const index = selectedArray[i];
+                const vehicle = extractedVehicles[index];
+                if (vehicle.status === 'uploaded') continue;
+                try {
+                    addLog('info', `📥 ${vehicle.name} yükleniyor...`);
+                    const vehicleData = {
+                        model: vehicle.name, price: vehicle.price, deposit: vehicle.deposit,
+                        status: 'active', image: vehicle.image, passengers: vehicle.passengers,
+                        fuel: vehicle.fuel, transmission: vehicle.transmission
+                    };
+                    const success = await uploadVehicleToAPI(vehicleData);
+                    if (success) {
+                        vehicle.status = 'uploaded';
+                        uploaded++;
+                        addLog('success', `✅ ${vehicle.name} yüklendi`);
+                    } else {
+                        addLog('error', `❌ ${vehicle.name} yüklenemedi`);
+                    }
+                } catch (error) {
+                    addLog('error', `❌ ${vehicle.name} hatası: ${error.message}`);
+                }
+                if (progressFill) {
+                    const progress = Math.round(((i + 1) / total) * 100);
+                    progressFill.style.width = `${progress}%`;
+                    progressFill.textContent = `${progress}%`;
+                }
+                const statusDiv = document.getElementById(`status-${index}`);
+                if (statusDiv) statusDiv.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">Yüklendi</span>';
+            }
+            addLog('success', `🎉 İşlem tamamlandı. ${uploaded}/${total} araç yüklendi.`);
+            if (uploadBtn) uploadBtn.disabled = false;
+            selectedVehicles.clear();
+            updateSelectedCount();
+            displayImportVehicles();
+            if (typeof loadVehicles === 'function') loadVehicles();
+        }
+
+        async function uploadAll() {
+            selectedVehicles.clear();
+            extractedVehicles.forEach((v, i) => {
+                if (v.status !== 'uploaded') selectedVehicles.add(i);
+            });
+            updateSelectedCount();
+            displayImportVehicles();
+            await uploadSelected();
+        }
+
+        async function uploadVehicleToAPI(data) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_BASE_URL}/vehicles`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+                    body: JSON.stringify(data)
+                });
+                return response.ok;
+            } catch (e) {
+                console.error('API Upload Error:', e);
+                return false;
+            }
+        }
+
+        function addLog(type, message) {
+            const logContainer = document.getElementById('logContainer');
+            if (!logContainer) return;
+            const div = document.createElement('div');
+            div.className = `text-xs mb-1 ${type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-500' : 'text-gray-600'}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // --- VISITOR STATS FUNCTIONS ---
+        async function loadVisitorStats() {
+            try {
+                const statsResponse = await fetch('/api/admin/stats/visitors', { headers: getAuthHeaders() });
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    document.getElementById('statTotalVisits').textContent = stats.totalVisits;
+                    document.getElementById('statUniqueVisitors').textContent = stats.uniqueVisitors;
+                    document.getElementById('statTodayVisits').textContent = stats.todayVisits;
+                    const dashVisitorEl = document.getElementById('dashboardTotalVisitors');
+                    if (dashVisitorEl) dashVisitorEl.textContent = stats.totalVisits;
+                }
+                const logsResponse = await fetch('/api/admin/visitors/logs', { headers: getAuthHeaders() });
+                if (logsResponse.ok) {
+                    const logs = await logsResponse.json();
+                    renderVisitorLogs(logs);
+                }
+            } catch (error) {
+                console.error('Ziyaretçi istatistikleri yüklenemedi:', error);
+            }
+        }
+
+        function renderVisitorLogs(logs) {
+            const tbody = document.getElementById('visitorLogsTable');
+            if (!tbody) return;
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Henüz kayıt yok.</td></tr>';
+                return;
+            }
+            const groupedLogs = logs.reduce((acc, log) => {
+                if (!acc[log.ip]) {
+                    acc[log.ip] = {
+                        ip: log.ip, location: `${log.city || '-'} / ${log.country || 'Bilinmiyor'}`,
+                        device: `${log.device} (${log.browser})`, count: 0, lastVisit: log.timestamp, visits: []
+                    };
+                }
+                acc[log.ip].count++;
+                acc[log.ip].visits.push(log);
+                return acc;
+            }, {});
+            const thead = document.querySelector('#visitorLogsTable').previousElementSibling;
+            if (thead) {
+                thead.innerHTML = `
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Adresi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasyon</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Son Cihaz</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ziyaret Sayısı</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Son Görülme</th>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = Object.values(groupedLogs).map((group, index) => `
+                <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="toggleVisitorDetails('details-${index}')">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
+                        <div class="flex items-center gap-2"><i class="ri-add-circle-line text-lg text-gray-400 transition-transform" id="icon-details-${index}"></i>${group.ip}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><div class="flex items-center gap-2"><i class="ri-map-pin-line text-gray-400"></i>${group.location}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${group.device}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">${group.count} Ziyaret</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(group.lastVisit).toLocaleString('tr-TR')}</td>
+                </tr>
+                <tr id="details-${index}" class="hidden bg-gray-50">
+                    <td colspan="5" class="p-4">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-100"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Zaman</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Sayfa</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Referans</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Cihaz Detayı</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${group.visits.map(visit => `<tr><td class="px-4 py-2 text-gray-600">${new Date(visit.timestamp).toLocaleString('tr-TR')}</td><td class="px-4 py-2 text-gray-800 font-medium truncate max-w-xs" title="${visit.page_url}">${visit.page_url}</td><td class="px-4 py-2 text-gray-500 truncate max-w-xs" title="${visit.referrer}">${visit.referrer || '-'}</td><td class="px-4 py-2 text-gray-500">${visit.os} / ${visit.browser}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleVisitorDetails(id) {
+            const row = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            if (row.classList.contains('hidden')) {
+                row.classList.remove('hidden');
+                icon.classList.add('rotate-45', 'text-primary');
+                icon.classList.remove('text-gray-400');
+            } else {
+                row.classList.add('hidden');
+                icon.classList.remove('rotate-45', 'text-primary');
+                icon.classList.add('text-gray-400');
+            }
+        }
+
+        // --- DASHBOARD STATS ---
+
+        async function updateDashboardStats() {
+            try {
+                // 1. Araç Sayısı
+                const vResponse = await fetch(`${API_BASE_URL}/vehicles`);
+                if (vResponse.ok) {
+                    const vehicles = await vResponse.json();
+                    const el = document.getElementById('dashboardTotalVehicles');
+                    if (el) el.textContent = vehicles.length;
+                }
+
+                // 2. Rezervasyon Sayısı (Tümü)
+                const [resResponse, qResponse, qrResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/reservations`),
+                    fetch(`${API_BASE_URL}/quotations`),
+                    fetch(`${API_BASE_URL}/quick-reservations`, { headers: getAuthHeaders() })
+                ]);
+
+                let totalReservations = 0;
+                if (resResponse.ok) totalReservations += (await resResponse.json()).length;
+                if (qResponse.ok) totalReservations += (await qResponse.json()).length;
+                if (qrResponse.ok) totalReservations += (await qrResponse.json()).length;
+
+                const resEl = document.getElementById('dashboardTotalReservations');
+                if (resEl) resEl.textContent = totalReservations;
+
+                // 3. Ziyaretçi İstatistikleri
+                loadVisitorStats();
+
+            } catch (error) {
+                console.error('Dashboard istatistikleri güncellenemedi:', error);
+            }
+        }
+
+        // --- DATABASE MANAGER ---
+        async function loadDbTables() {
+            try {
+                console.log('🔄 Loading DB tables...');
+                const response = await fetch(`${API_BASE_URL}/db/tables`, {
+                    headers: getAuthHeaders()
+                });
+                
+                console.log('📡 DB Tables Response Status:', response.status);
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('❌ DB Tables Error Body:', text);
+                    throw new Error(`Tablolar yüklenemedi (${response.status})`);
+                }
+                
+                const tables = await response.json();
+                console.log('✅ Tables loaded:', tables);
+                const container = document.getElementById('db-tables-list');
+                
+                if (tables.length === 0) {
+                    container.innerHTML = '<div class="text-gray-500 text-sm">Tablo bulunamadı</div>';
+                    return;
+                }
+
+                container.innerHTML = tables.map(table => `
+                    <div onclick="selectDbTable('${table}')" 
+                         class="p-3 bg-gray-50 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors flex items-center justify-between group">
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">${table}</span>
+                        <i class="ri-arrow-right-s-line text-gray-400 group-hover:text-blue-500"></i>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Tablo yükleme hatası:', error);
+                document.getElementById('db-tables-list').innerHTML = 
+                    `<div class="text-red-500 text-sm">Hata: ${error.message}</div>`;
+            }
+        }
+
+        function selectDbTable(tableName) {
+            const queryInput = document.getElementById('db-query-input');
+            queryInput.value = `SELECT * FROM ${tableName} LIMIT 50;`;
+            executeDbQuery();
+        }
+
+        async function executeDbQuery() {
+            const queryInput = document.getElementById('db-query-input');
+            const query = queryInput.value.trim();
+            const resultsContainer = document.getElementById('db-results-container');
+            const countSpan = document.getElementById('db-result-count');
+
+            if (!query) return;
+
+            resultsContainer.innerHTML = '<div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
+            countSpan.textContent = '';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/db/query`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Sorgu hatası');
+                }
+
+                if (data.data && Array.isArray(data.data)) {
+                    countSpan.textContent = `${data.data.length} sonuç`;
+                    renderDbResults(data.data);
+                } else {
+                    countSpan.textContent = 'İşlem başarılı';
+                    resultsContainer.innerHTML = `
+                        <div class="p-4 bg-green-50 text-green-700 rounded-lg border border-green-200">
+                            <i class="ri-checkbox-circle-line mr-2"></i>
+                            Sorgu başarıyla çalıştırıldı.
+                            ${data.changes ? `<br>Etkilenen satır: ${data.changes}` : ''}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Sorgu hatası:', error);
+                resultsContainer.innerHTML = `
+                    <div class="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                        <i class="ri-error-warning-line mr-2"></i>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderDbResults(results) {
+            const container = document.getElementById('db-results-container');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center p-4">Sonuç bulunamadı</div>';
+                return;
+            }
+
+            const columns = Object.keys(results[0]);
+            
+            let html = `
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                        <tr>
+                            ${columns.map(col => `<th class="px-6 py-3 border-b">${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(row => `
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                ${columns.map(col => {
+                                    let val = row[col];
+                                    if (val === null) val = '<span class="text-gray-300">NULL</span>';
+                                    else if (typeof val === 'object') val = JSON.stringify(val);
+                                    else if (val.length > 50) val = val.substring(0, 50) + '...';
+                                    return `<td class="px-6 py-4 whitespace-nowrap max-w-xs overflow-hidden text-ellipsis" title="${row[col]}">${val}</td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // --- INITIALIZATION ---
+        async function init() {
+            checkAuth();
+
+            // Event Listeners
+            const addVehicleBtn = document.getElementById('add-vehicle-button');
+            if (addVehicleBtn) {
+                addVehicleBtn.addEventListener('click', () => {
+                    console.log('Add vehicle button clicked');
+                    if (typeof openAddVehicleModal === 'function') {
+                        openAddVehicleModal();
+                    } else {
+                        console.error('openAddVehicleModal function not found');
+                    }
+                });
+            }
+
+            await loadSettings();
+            await loadBackups();
+            await loadLocations();
+            await loadQuotations();
+            await displayVehicles();
+            await loadUsers();
+            updateDashboardStats();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+    <!-- Payment Details Modal -->
+    <div id="payment-details-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-fade-in">
+            <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                <h3 class="text-xl font-bold text-secondary">Ödeme Detayları</h3>
+                <button onclick="closePaymentDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="ri-close-line text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6" id="payment-details-content">
+                <!-- Content will be injected here -->
+            </div>
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end">
+                <button onclick="closePaymentDetailsModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                    Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

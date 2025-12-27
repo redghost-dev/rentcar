@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veri Temizle</title>
+</head>
+<body>
+    <h1>localStorage Temizleniyor...</h1>
+    <script>
+        // Tüm localStorage'ı temizle
+        localStorage.clear();
+        console.log('localStorage tamamen temizlendi!');
+        
+        // 2 saniye sonra admin paneline yönlendir
+        setTimeout(() => {
+            window.location.href = 'admin.html';
+        }, 2000);
+    </script>
+</body>
+</html>

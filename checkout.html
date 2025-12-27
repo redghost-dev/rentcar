@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme Yap - Kiralık Car</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="/src/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        secondary: 'var(--color-primary-dark)',
+                        whatsapp: '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
+    <script type="module">
+        import { applyThemeToDocument, applyContactInfoToDocument } from './src/site-settings.js';
+        applyThemeToDocument(document);
+        applyContactInfoToDocument(document);
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-primary">Kiralık<span class="text-gray-800">Car</span></a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="/" class="hover:text-primary transition">Ana Sayfa</a>
+                <a href="/profile.html" class="hover:text-primary transition">Profilim</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto">
+            <!-- Steps -->
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mb-2">
+                        <i class="ri-check-line"></i>
+                    </div>
+                    <span class="text-sm text-gray-600">Rezervasyon</span>
+                </div>
+                <div class="flex-1 h-1 bg-green-200 mx-4"></div>
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mb-2">2</div>
+                    <span class="text-sm font-semibold text-primary">Ödeme</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-4"></div>
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center mb-2">3</div>
+                    <span class="text-sm text-gray-500">Onay</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Order Summary -->
+                <div class="md:col-span-1 order-2 md:order-1">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-lg font-bold mb-4 border-b pb-2">Rezervasyon Özeti</h3>
+                        <div id="reservationSummary" class="space-y-3 text-sm">
+                            <div class="animate-pulse space-y-2">
+                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t">
+                            <div class="flex flex-wrap justify-between items-center gap-2 font-bold text-lg">
+                                <span class="whitespace-nowrap">Toplam:</span>
+                                <span id="totalAmount" class="text-primary text-xl sm:text-2xl text-right break-all">...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="md:col-span-2 order-1 md:order-2">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <i class="ri-bank-card-line text-primary"></i>
+                            Güvenli Ödeme
+                        </h2>
+
+                        <form id="paymentForm" class="space-y-6">
+                            <input type="hidden" id="reservationId" name="reservationId">
+                            
+                            <!-- Card Holder -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim</label>
+                                <input type="text" name="cardHolder" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                                    placeholder="Ad Soyad">
+                            </div>
+
+                            <!-- Card Number -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kart Numarası</label>
+                                <div class="relative">
+                                    <input type="text" name="cardNumber" required maxlength="19"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                                        placeholder="0000 0000 0000 0000">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2 text-2xl text-gray-400">
+                                        <i class="ri-visa-line"></i>
+                                        <i class="ri-mastercard-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Expiry -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Son Kullanma Tarihi</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" name="expiryMonth" required maxlength="2"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition text-center"
+                                            placeholder="AA">
+                                        <span class="self-center text-gray-400">/</span>
+                                        <input type="text" name="expiryYear" required maxlength="2"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition text-center"
+                                            placeholder="YY">
+                                    </div>
+                                </div>
+
+                                <!-- CVV -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">CVV / CVC</label>
+                                    <div class="relative">
+                                        <input type="text" name="cvv" required maxlength="3"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition text-center"
+                                            placeholder="123">
+                                        <i class="ri-question-line absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-help" title="Kartın arkasındaki son 3 hane"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4">
+                                <button type="submit" 
+                                    class="w-full bg-primary hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                                    <i class="ri-lock-2-line"></i>
+                                    <span id="payButtonText">Ödemeyi Tamamla</span>
+                                </button>
+                                <p class="text-xs text-center text-gray-500 mt-3">
+                                    <i class="ri-shield-check-line align-middle"></i>
+                                    Ödemeniz 256-bit SSL sertifikası ile korunmaktadır.
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Formatters
+        const formatCardNumber = (value) => {
+            const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            const matches = v.match(/\d{4,16}/g);
+            const match = matches && matches[0] || '';
+            const parts = [];
+            for (let i = 0, len = match.length; i < len; i += 4) {
+                parts.push(match.substring(i, i + 4));
+            }
+            if (parts.length) {
+                return parts.join(' ');
+            } else {
+                return value;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reservationId = urlParams.get('reservationId');
+
+            if (!reservationId) {
+                alert('Rezervasyon bulunamadı!');
+                window.location.href = '/';
+                return;
+            }
+
+            document.getElementById('reservationId').value = reservationId;
+
+            // Load Reservation Details
+            try {
+                const response = await fetch(`/api/reservations?id=${reservationId}`); // Need to update API to support single fetch or filter
+                // Actually the current API returns all reservations. I should probably update the API to fetch a single one or filter client side (not secure but okay for now)
+                // Or better, add a specific endpoint or query param support.
+                // Let's assume I'll update the server to support ?id=... or just fetch all and find it.
+                // Wait, fetching all is bad for privacy. I should update server.cjs to support fetching by ID.
+                
+                // For now, let's try to fetch all and filter (I will fix the server in a moment)
+                const reservations = await response.json();
+                const reservation = reservations.find(r => r.id == reservationId);
+
+                if (!reservation) {
+                    throw new Error('Rezervasyon bulunamadı');
+                }
+
+                // Parse specialRequests for details if available
+                let details = {
+                    days: calculateDays(reservation.pickupDate, reservation.dropoffDate),
+                    dailyPrice: 0,
+                    subtotal: 0,
+                    vatAmount: 0,
+                    discountAmount: 0
+                };
+
+                if (reservation.specialRequests && reservation.specialRequests.includes('Hızlı Rezervasyon')) {
+                    const daysMatch = reservation.specialRequests.match(/Gün: (\d+)/);
+                    const dailyMatch = reservation.specialRequests.match(/Günlük: ([\d.]+) TL/);
+                    const subtotalMatch = reservation.specialRequests.match(/Ara Toplam: ([\d.]+) TL/);
+                    const vatMatch = reservation.specialRequests.match(/KDV: ([\d.]+) TL/);
+                    const discountMatch = reservation.specialRequests.match(/İndirim: ([\d.]+) TL/);
+
+                    if (daysMatch) details.days = parseInt(daysMatch[1]);
+                    if (dailyMatch) details.dailyPrice = parseFloat(dailyMatch[1]);
+                    if (subtotalMatch) details.subtotal = parseFloat(subtotalMatch[1]);
+                    if (vatMatch) details.vatAmount = parseFloat(vatMatch[1]);
+                    if (discountMatch) details.discountAmount = parseFloat(discountMatch[1]);
+                } else {
+                    // Normal Rezervasyon
+                    if (reservation.vehiclePrice) {
+                        // "₺500" veya "500" formatını parse et
+                        const priceStr = reservation.vehiclePrice.replace(/[^0-9.]/g, '');
+                        details.dailyPrice = parseFloat(priceStr) || 0;
+                    }
+                    // Ara toplamı hesapla (Günlük x Gün)
+                    if (details.dailyPrice > 0) {
+                        details.subtotal = details.dailyPrice * details.days;
+                    }
+                    // Eğer veritabanında kayıtlı totalPrice varsa onu kullan (öncelikli)
+                    if (reservation.totalPrice) {
+                        // Basitlik için subtotal'i total'e eşitleyelim (KDV dahil gibi)
+                        // Veya fark varsa ekleyebiliriz ama şimdilik basit tutalım
+                        // details.subtotal = parseFloat(reservation.totalPrice);
+                    }
+                }
+
+                // Update Summary
+                const summaryHtml = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                            <span class="text-gray-600">Araç</span>
+                            <span class="font-semibold text-gray-800">${reservation.vehicleName || reservation.vehicleId || 'Belirtilmemiş'}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-sm py-2 border-b border-gray-100">
+                            <div>
+                                <span class="block text-xs text-gray-500">Alış Tarihi</span>
+                                <span class="font-medium text-gray-800">${new Date(reservation.pickupDate).toLocaleDateString('tr-TR')}</span>
+                                <span class="text-xs text-gray-500 ml-1">${reservation.pickupTime}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-xs text-gray-500">İade Tarihi</span>
+                                <span class="font-medium text-gray-800">${new Date(reservation.dropoffDate).toLocaleDateString('tr-TR')}</span>
+                                <span class="text-xs text-gray-500 ml-1">${reservation.dropoffTime}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Kiralama Süresi</span>
+                            <span class="font-medium">${details.days} Gün</span>
+                        </div>
+
+                        ${details.dailyPrice > 0 ? `
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Günlük Fiyat</span>
+                            <span class="font-medium">${details.dailyPrice.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                        </div>
+                        ` : ''}
+
+                        ${details.subtotal > 0 ? `
+                        <div class="flex justify-between items-center text-sm pt-2 border-t border-dashed border-gray-200">
+                            <span class="text-gray-600">Ara Toplam</span>
+                            <span class="font-medium">${details.subtotal.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                        </div>
+                        ` : ''}
+
+                        ${details.vatAmount > 0 ? `
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">KDV (%20)</span>
+                            <span class="font-medium">${details.vatAmount.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                        </div>
+                        ` : ''}
+
+                        ${details.discountAmount > 0 ? `
+                        <div class="flex justify-between items-center text-sm text-green-600">
+                            <span>İndirim</span>
+                            <span class="font-medium">-${details.discountAmount.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.getElementById('reservationSummary').innerHTML = summaryHtml;
+                document.getElementById('totalAmount').textContent = `${parseFloat(reservation.totalPrice).toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺`;
+                document.getElementById('payButtonText').textContent = `${parseFloat(reservation.totalPrice).toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺ Öde`;
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('reservationSummary').innerHTML = '<p class="text-red-500">Rezervasyon bilgileri yüklenemedi.</p>';
+            }
+
+            // Input Formatting
+            const cardInput = document.querySelector('input[name="cardNumber"]');
+            cardInput.addEventListener('input', (e) => {
+                e.target.value = formatCardNumber(e.target.value);
+            });
+
+            // Form Submit
+            document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i> İşleniyor...';
+
+                const formData = new FormData(e.target);
+                
+                // Tutarı doğru formatta parse et (TR formatı: 1.234,56 -> 1234.56)
+                const rawAmount = document.getElementById('totalAmount').textContent;
+                const cleanAmount = rawAmount
+                    .replace(/\./g, '') // Binlik ayracı noktayı kaldır
+                    .replace(/,/g, '.') // Ondalık ayracı virgülü noktaya çevir
+                    .replace(/[^0-9.]/g, ''); // Diğer karakterleri temizle
+                
+                const paymentData = {
+                    reservationId: formData.get('reservationId'),
+                    amount: parseFloat(cleanAmount),
+                    currency: 'TRY',
+                    cardHolder: formData.get('cardHolder'),
+                    cardNumber: formData.get('cardNumber').replace(/\s/g, ''),
+                    expiryMonth: formData.get('expiryMonth'),
+                    expiryYear: formData.get('expiryYear'),
+                    cvv: formData.get('cvv')
+                };
+
+                try {
+                    const res = await fetch('/api/payments/mock-intent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(paymentData)
+                    });
+
+                    const result = await res.json();
+
+                    if (!res.ok) {
+                        // Hata detaylarını yakala
+                        const errMsg = result.errors 
+                            ? result.errors.map(e => `${e.path}: ${e.msg}`).join(', ') 
+                            : (result.error || 'Ödeme işlemi başarısız');
+                        throw new Error(errMsg);
+                    }
+
+                    if (result.success) {
+                        // Müşteri isteği: Ödeme başarılı olsa bile teknik hata mesajı gösterip ana sayfaya yönlendir
+                        window.location.href = '/?payment_error=true';
+                    } else {
+                        throw new Error(result.error || 'Ödeme başarısız');
+                    }
+                } catch (error) {
+                    console.error('Ödeme Hatası:', error);
+                    alert('Hata: ' + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            });
+        });
+
+        function calculateDays(start, end) {
+            const d1 = new Date(start);
+            const d2 = new Date(end);
+            const diff = Math.abs(d2 - d1);
+            return Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
+        }
+    </script>
+</body>
+</html>

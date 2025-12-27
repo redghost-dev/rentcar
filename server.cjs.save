@@ -1,0 +1,1293 @@
+require('dotenv').config();
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const path = require('path');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
+const helmet = require('helmet');
+const fs = require('fs');
+const https = require('https');
+const archiver = require('archiver');
+const multer = require('multer');
+const AdmZip = require('adm-zip');
+
+const app = express();
+app.set('trust proxy', 1);
+const PORT = 3000;
+
+// ===== GÜVENLİK AYARLARI =====
+
+// JWT Secret Key (Production'da environment variable ZORUNLU!)
+if (!process.env.JWT_SECRET) {
+    console.error('❌ HATA: JWT_SECRET environment variable tanımlanmamış!');
+    console.error('Lütfen .env dosyasında JWT_SECRET tanımlayın.');
+    process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = '24h';
+
+// Helmet - HTTP header güvenliği
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdn.tailwindcss.com"],
+            scriptSrcAttr: ["'unsafe-inline'"], // onclick, onchange gibi inline event'ler için
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdn.tailwindcss.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"]
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
+
+// CORS Konfigürasyonu - Sadece kendi domain'e izin ver
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173', // Vite dev server
+    'http://127.0.0.1:5173',
+    // Production domain'inizi buraya ekleyin: 'https://yourdomain.com'
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            'https://kiralikcar.com',
+            'https://www.kiralikcar.com',
+            'http://localhost:3000',
+            'http://localhost:5173'
+        ];
+        // Sadece allowedOrigins içindeki origin'lere izin ver
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else if (!origin) {
+            // Same-origin isteklere (origin undefined) izin ver
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy: Origin not allowed'));
+        }    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
+
+// Rate Limiting - DDoS koruması
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 dakika
+    max: 30, // IP başına 30 istek (sıkılaştırıldı)
+    message: 'Çok fazla istek gönderdiniz. Lütfen 15 dakika sonra tekrar deneyin.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+        // Whitelist IP'ler - rate limit uygulanmaz
+        const whitelist = ['176.4.5.13', '127.0.0.1', '::1'];
+        const clientIp = req.ip || req.connection.remoteAddress;
+        return whitelist.includes(clientIp);
+    }
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 dakika
+    max: 5, // IP başına 5 login denemesi (sıkılaştırıldı)
+    message: 'Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.',
+    skipSuccessfulRequests: true, // Başarılı giriş sayılmaz
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+        // Whitelist IP'ler - login limit uygulanmaz
+        const whitelist = ['176.4.5.13', '127.0.0.1', '::1'];
+        const clientIp = req.ip || req.connection.remoteAddress;
+        return whitelist.includes(clientIp);
+    }
+});
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(limiter); // Tüm route'lara rate limit uygula
+app.use(bodyParser.json());
+
+// GÜVENLİK: Hassas dosyalara erişimi engelle
+app.use((req, res, next) => {
+    const blockedPaths = ['.db', '.env', '.git', 'node_modules', 'backups', 'package.json', 'server.cjs'];
+    if (blockedPaths.some(blocked => req.path.includes(blocked))) {
+        return res.status(403).json({ error: 'Erişim engellendi' });
+    }
+    next();
+});
+
+app.use(express.static(path.join(__dirname, 'dist')));
+// Admin panel için src klasörünü de servis et
+app.use('/src', express.static(path.join(__dirname, 'src')));
+// img klasörünü serve et
+app.use('/img', express.static(path.join(__dirname, 'img')));
+
+// SQLite Database
+const db = new sqlite3.Database('./data.db', (err) => {
+    if (err) console.error(err);
+    else console.log('✓ SQLite bağlantısı başarılı');
+});
+
+// Tabloları oluştur
+db.serialize(() => {
+    // Admin Users tablosu
+    db.run(`CREATE TABLE IF NOT EXISTS admin_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        email TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        lastLogin DATETIME
+    )`);
+
+    // Vehicles tablosu
+    db.run(`CREATE TABLE IF NOT EXISTS vehicles (
+        id TEXT PRIMARY KEY,
+        model TEXT NOT NULL,
+        price TEXT NOT NULL,
+        deposit TEXT NOT NULL,
+        status TEXT NOT NULL,
+        image TEXT NOT NULL
+    )`);
+
+    // Quotations (Teklifler) tablosu
+    db.run(`CREATE TABLE IF NOT EXISTS quotations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        vehicleId TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT DEFAULT 'yeni',
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(vehicleId) REFERENCES vehicles(id)
+    )`);
+
+    // Reservations (Araç Rezervasyonları) tablosu
+    db.run(`CREATE TABLE IF NOT EXISTS reservations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fullName TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        pickupLocation TEXT NOT NULL,
+        dropoffLocation TEXT NOT NULL,
+        pickupDate TEXT NOT NULL,
+        pickupTime TEXT NOT NULL,
+        dropoffDate TEXT NOT NULL,
+        dropoffTime TEXT NOT NULL,
+        vehicleId TEXT,
+        differentDropoff INTEGER DEFAULT 0,
+        specialRequests TEXT,
+        status TEXT DEFAULT 'yeni',
+        totalPrice TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(vehicleId) REFERENCES vehicles(id)
+    )`);
+
+    // Locations (Alış/İade Yerleri) tablosu
+    db.run(`CREATE TABLE IF NOT EXISTS locations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        region TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        code TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'airport',
+        isActive INTEGER DEFAULT 1,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+});
+
+// GÜVENLİK: Default admin kullanıcısı otomatik oluşturulmaz!
+// İlk kurulum için POST /api/auth/setup endpoint'ini kullanın
+setTimeout(() => {
+    db.get("SELECT COUNT(*) as count FROM admin_users", async (err, row) => {
+        if (err) {
+            console.error('❌ Admin user check hatası:', err);
+            return;
+        }
+        
+        if (row && row.count === 0) {
+            console.log('⚠️  UYARI: Hiç admin kullanıcısı yok!');
+            console.log('📝 İlk admin kullanıcısını oluşturmak için:');
+            console.log('   POST /api/auth/setup');
+            console.log('   Body: { "username": "admin", "password": "güçlü-şifre", "email": "email@domain.com" }');
+            console.log('   Şifre en az 8 karakter, büyük/küçük harf, rakam ve özel karakter içermelidir.');
+        }
+    });
+}, 200);
+
+// Default araçları ekle
+setTimeout(() => {
+    db.get("SELECT COUNT(*) as count FROM vehicles", (err, row) => {
+        if (err) {
+            console.error('❌ SELECT COUNT hatası:', err);
+            return;
+        }
+        console.log('📊 Araç sayısı:', row?.count);
+        if (row && row.count === 0) {
+            console.log('🚗 Default araçlar ekleniyor...');
+            const defaultVehicles = [
+                { id: '1', model: 'Toyota Corolla', price: '₺450', deposit: '₺5.000', status: 'Müsait', image: '/img/1.jpg' },
+                { id: '2', model: 'Honda Civic', price: '₺500', deposit: '₺5.500', status: 'Müsait', image: '/img/2.jpg' },
+                { id: '3', model: 'Ford Focus', price: '₺480', deposit: '₺5.200', status: 'Müsait', image: '/img/3.jpg' },
+                { id: '4', model: 'Hyundai Elantra', price: '₺420', deposit: '₺4.800', status: 'Müsait', image: '/img/4.jpg' },
+                { id: '5', model: 'Nissan Altima', price: '₺520', deposit: '₺5.800', status: 'Müsait', image: '/img/5.jpeg' }
+            ];
+
+            let inserted = 0;
+            defaultVehicles.forEach(v => {
+                db.run(
+                    "INSERT INTO vehicles (id, model, price, deposit, status, image) VALUES (?, ?, ?, ?, ?, ?)",
+                    [v.id, v.model, v.price, v.deposit, v.status, v.image],
+                    (err) => {
+                        if (err) console.error('❌ INSERT hatası:', err);
+                        else inserted++;
+                        if (inserted === defaultVehicles.length) {
+                            console.log('✓ Tüm default araçlar eklendi');
+                        }
+                    }
+                );
+            });
+        }
+    });
+
+    // Default lokasyonları ekle
+    db.get("SELECT COUNT(*) as count FROM locations", (err, row) => {
+        if (err) {
+            console.error('❌ SELECT COUNT locations hatası:', err);
+            return;
+        }
+        if (row && row.count === 0) {
+            console.log('📍 Default lokasyonlar ekleniyor...');
+            const defaultLocations = [
+                { region: 'İstanbul Avrupa', name: 'İstanbul Havalimanı (IST)', code: 'IST', type: 'airport' },
+                { region: 'İstanbul Anadolu', name: 'Sabiha Gökçen İç Hatlar (SAW)', code: 'SAW', type: 'airport' },
+                { region: 'İstanbul Anadolu', name: 'Sabiha Gökçen Dış Hatlar (SAW)', code: 'SAW', type: 'airport' },
+                { region: 'İzmir', name: 'Adnan Menderes H. Dış Hatlar (ADB)', code: 'ADB', type: 'airport' },
+                { region: 'İzmir', name: 'Adnan Menderes H. İç Hatlar (ADB)', code: 'ADB', type: 'airport' },
+                { region: 'Antalya', name: 'Antalya Havalimanı Dış Hatlar (AYT)', code: 'AYT', type: 'airport' },
+                { region: 'Antalya', name: 'Antalya Havalimanı İç Hatlar (AYT)', code: 'AYT', type: 'airport' },
+                { region: 'Ankara', name: 'Esenboğa Havalimanı Dış Hatlar (ESB)', code: 'ESB', type: 'airport' },
+                { region: 'Ankara', name: 'Esenboğa Havalimanı İç Hatlar (ESB)', code: 'ESB', type: 'airport' },
+                { region: 'Kayseri', name: 'Kayseri Havalimanı (ASR)', code: 'ASR', type: 'airport' },
+                { region: 'Adana-Mersin', name: 'Çukurova Havalimanı (COV)', code: 'COV', type: 'airport' },
+                { region: 'Gaziantep', name: 'Gaziantep Havalimanı Dış Hatlar (GZT)', code: 'GZT', type: 'airport' },
+                { region: 'Gaziantep', name: 'Gaziantep Havalimanı İç Hatlar (GZT)', code: 'GZT', type: 'airport' },
+                { region: 'Diyarbakır', name: 'Diyarbakır Havalimanı (DIY)', code: 'DIY', type: 'airport' },
+                { region: 'Diyarbakır', name: 'Diyarbakır Rancar Ofis (DIY)', code: 'DIY', type: 'office' },
+                { region: 'Konya', name: 'Konya Havalimanı Dış Hatlar (KYA)', code: 'KYA', type: 'airport' },
+                { region: 'Konya', name: 'Konya Havalimanı İç Hatlar (KYA)', code: 'KYA', type: 'airport' },
+                { region: 'Trabzon', name: 'Trabzon Havalimanı Dış Hatlar (TZX)', code: 'TZX', type: 'airport' },
+                { region: 'Trabzon', name: 'Trabzon Havalimanı İç Hatlar (TZX)', code: 'TZX', type: 'airport' },
+                { region: 'Samsun', name: 'Samsun Havalimanı (SZF)', code: 'SZF', type: 'airport' },
+                { region: 'Hatay', name: 'Hatay Havalimanı İç Hatlar (HTY)', code: 'HTY', type: 'airport' },
+                { region: 'Hatay', name: 'Hatay Havalimanı Dış Hatlar (HTY)', code: 'HTY', type: 'airport' },
+                { region: 'Hatay', name: 'Hatay Rancar Ofis (HTY)', code: 'HTY', type: 'office' },
+                { region: 'Dalaman', name: 'Dalaman Havalimanı Dış Hatlar (DLM)', code: 'DLM', type: 'airport' },
+                { region: 'Dalaman', name: 'Dalaman Havalimanı İç Hatlar (DLM)', code: 'DLM', type: 'airport' },
+                { region: 'Bodrum', name: 'Bodrum Havalimanı Dış Hatlar (BJV)', code: 'BJV', type: 'airport' },
+                { region: 'Bodrum', name: 'Bodrum Havalimanı İç Hatlar (BJV)', code: 'BJV', type: 'airport' }
+            ];
+
+            let inserted = 0;
+            defaultLocations.forEach(loc => {
+                db.run(
+                    "INSERT OR IGNORE INTO locations (region, name, code, type) VALUES (?, ?, ?, ?)",
+                    [loc.region, loc.name, loc.code, loc.type],
+                    (err) => {
+                        if (err) console.error('❌ Location INSERT hatası:', err);
+                        else inserted++;
+                        if (inserted === defaultLocations.length) {
+                            console.log(`✓ ${defaultLocations.length} lokasyon eklendi`);
+                        }
+                    }
+                );
+            });
+        }
+    });
+}, 300);
+
+// ===== JWT MIDDLEWARE =====
+
+// JWT Token doğrulama middleware
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) {
+        return res.status(401).json({ error: 'Token bulunamadı. Giriş yapmanız gerekiyor.' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error('❌ Token doğrulama hatası:', err.message);
+            return res.status(403).json({ error: 'Geçersiz veya süresi dolmuş token.' });
+        }
+        req.user = user;
+        next();
+    });
+}
+
+// ===== AUTHENTICATION API =====
+
+// POST İlk Kurulum - Admin Oluştur (sadece admin yoksa)
+app.post('/api/auth/setup', [
+    body('username').trim().isLength({ min: 4, max: 50 }).matches(/^[a-zA-Z0-9_]+$/).withMessage('Kullanıcı adı sadece harf, rakam ve _ içerebilir'),
+    body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/).withMessage('Şifre en az 8 karakter, büyük/küçük harf, rakam ve özel karakter içermelidir'),
+    body('email').trim().isEmail().normalizeEmail()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // Zaten admin var mı kontrol et
+        db.get("SELECT COUNT(*) as count FROM admin_users", async (err, row) => {
+            if (err) {
+                return res.status(500).json({ error: 'Veritabanı hatası' });
+            }
+            
+            if (row && row.count > 0) {
+                return res.status(403).json({ error: 'Admin kullanıcısı zaten mevcut. Bu endpoint sadece ilk kurulum için kullanılabilir.' });
+            }
+
+            const { username, password, email } = req.body;
+            const hashedPassword = await bcrypt.hash(password, 12);
+            
+            db.run(
+                "INSERT INTO admin_users (username, password, email) VALUES (?, ?, ?)",
+                [username, hashedPassword, email],
+                (err) => {
+                    if (err) {
+                        return res.status(500).json({ error: 'Admin kullanıcısı oluşturulamadı' });
+                    }
+                    console.log(`✅ İlk admin kullanıcısı oluşturuldu: ${username}`);
+                    res.json({ success: true, message: 'Admin kullanıcısı başarıyla oluşturuldu. Artık giriş yapabilirsiniz.' });
+                }
+            );
+        });
+    } catch (error) {
+        console.error('❌ Setup hatası:', error);
+        res.status(500).json({ error: 'Sunucu hatası' });
+    }
+});
+
+// POST Admin Login
+app.post('/api/auth/login', loginLimiter, [
+    body('username').trim().isLength({ min: 3 }).escape(),
+    body('password').isLength({ min: 6 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, password } = req.body;
+
+    try {
+        db.get("SELECT * FROM admin_users WHERE username = ?", [username], async (err, user) => {
+            if (err) {
+                console.error('❌ Login DB hatası:', err);
+                return res.status(500).json({ error: 'Sunucu hatası' });
+            }
+
+            if (!user) {
+                return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
+            }
+
+            const validPassword = await bcrypt.compare(password, user.password);
+            if (!validPassword) {
+                return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
+            }
+
+            // JWT Token oluştur
+            const token = jwt.sign(
+                { id: user.id, username: user.username },
+                JWT_SECRET,
+                { expiresIn: JWT_EXPIRES_IN }
+            );
+
+            // Son giriş zamanını güncelle
+            db.run("UPDATE admin_users SET lastLogin = CURRENT_TIMESTAMP WHERE id = ?", [user.id]);
+
+            console.log(`✅ Admin girişi: ${username}`);
+            res.json({
+                success: true,
+                token,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                }
+            });
+        });
+    } catch (error) {
+        console.error('❌ Login hatası:', error);
+        res.status(500).json({ error: 'Sunucu hatası' });
+    }
+});
+
+// POST Token doğrulama
+app.post('/api/auth/verify', authenticateToken, (req, res) => {
+    res.json({ success: true, user: req.user });
+});
+
+// POST Şifre değiştirme
+app.post('/api/auth/change-password', authenticateToken, [
+    body('oldPassword').isLength({ min: 6 }),
+    body('newPassword').isLength({ min: 6 })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        db.get("SELECT * FROM admin_users WHERE id = ?", [req.user.id], async (err, user) => {
+            if (err || !user) {
+                return res.status(500).json({ error: 'Kullanıcı bulunamadı' });
+            }
+
+            const validPassword = await bcrypt.compare(oldPassword, user.password);
+            if (!validPassword) {
+                return res.status(401).json({ error: 'Mevcut şifre hatalı' });
+            }
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            db.run("UPDATE admin_users SET password = ? WHERE id = ?", [hashedPassword, user.id], (err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Şifre güncellenemedi' });
+                }
+                console.log(`✅ Şifre değiştirildi: ${user.username}`);
+                res.json({ success: true, message: 'Şifre başarıyla değiştirildi' });
+            });
+        });
+    } catch (error) {
+        console.error('❌ Şifre değiştirme hatası:', error);
+        res.status(500).json({ error: 'Sunucu hatası' });
+    }
+});
+
+// ===== VEHICLES API =====
+
+// GET tüm araçlar
+app.get('/api/vehicles', (req, res) => {
+    console.log('📡 GET /api/vehicles isteği alındı');
+    db.all("SELECT * FROM vehicles", (err, rows) => {
+        if (err) {
+            console.error('❌ DB Hatası:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log(`✓ ${rows?.length || 0} araç döndürülüyor`);
+        if (rows && rows.length > 0) {
+            console.log('🔍 İlk araç ID:', rows[0].id, 'Type:', typeof rows[0].id);
+        }
+        res.json(rows || []);
+    });
+});
+
+// GET bir araç (ID'ye göre)
+app.get('/api/vehicles/:id', (req, res) => {
+    db.get("SELECT * FROM vehicles WHERE id = ?", [req.params.id], (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Araç bulunamadı' });
+        }
+        res.json(row);
+    });
+});
+
+// POST yeni araç ekle (KORUNMALI)
+app.post('/api/vehicles', authenticateToken, [
+    body('model').trim().notEmpty().escape(),
+    body('price').trim().notEmpty(),
+    body('deposit').trim().notEmpty()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const { id, model, price, deposit, status, image } = req.body;
+
+    if (!id || !model || !price || !deposit) {
+        return res.status(400).json({ error: 'Gerekli alanlar eksik' });
+    }
+
+    db.run(
+        "INSERT INTO vehicles (id, model, price, deposit, status, image) VALUES (?, ?, ?, ?, ?, ?)",
+        [id, model, price, deposit, status || 'Müsait', image || '/img/default.png'],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ id, model, price, deposit, status: status || 'Müsait', image });
+        }
+    );
+});
+
+// PUT araç güncelle (KORUNMALI)
+app.put('/api/vehicles/:id', authenticateToken, [
+    body('model').trim().notEmpty().escape(),
+    body('price').trim().notEmpty(),
+    body('deposit').trim().notEmpty()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const { model, price, deposit, status, image } = req.body;
+
+    console.log('🔄 UPDATE isteği - ID:', req.params.id, 'Type:', typeof req.params.id);
+    console.log('📝 Yeni veriler:', { model, price, deposit, status, image });
+
+    db.run(
+        "UPDATE vehicles SET model = ?, price = ?, deposit = ?, status = ?, image = ? WHERE id = ?",
+        [model, price, deposit, status, image, req.params.id],
+        function(err) {
+            if (err) {
+                console.error('❌ UPDATE hatası:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log('✅ UPDATE sonucu - Değiştirilen satır sayısı:', this.changes);
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Araç bulunamadı' });
+            }
+            res.json({ id: req.params.id, model, price, deposit, status, image });
+        }
+    );
+});
+
+// DELETE araç sil (KORUNMALI)
+app.delete('/api/vehicles/:id', authenticateToken, (req, res) => {
+    console.log('🗑️ DELETE isteği - ID:', req.params.id, 'Type:', typeof req.params.id);
+    
+    db.run("DELETE FROM vehicles WHERE id = ?", [req.params.id], function(err) {
+        if (err) {
+            console.error('❌ DELETE hatası:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('✅ DELETE sonucu - Silinen satır sayısı:', this.changes);
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Araç bulunamadı' });
+        }
+        res.json({ message: 'Araç silindi' });
+    });
+});
+
+// ==========================================
+// QUOTATIONS (TKLİFLER) API ENDPOINTS
+// ==========================================
+
+// GET tüm teklifleri al
+app.get('/api/quotations', (req, res) => {
+    db.all(`
+        SELECT q.*, v.model as vehicleName 
+        FROM quotations q 
+        LEFT JOIN vehicles v ON q.vehicleId = v.id 
+        ORDER BY q.createdAt DESC
+    `, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+// POST yeni teklif ekle
+app.post('/api/quotations', [
+    body('name').trim().notEmpty().isLength({ max: 100 }).escape(),
+    body('email').trim().isEmail().normalizeEmail(),
+    body('phone').trim().matches(/^[0-9+\s()-]{10,20}$/),
+    body('vehicleId').trim().notEmpty(),
+    body('message').trim().notEmpty().isLength({ max: 1000 }).escape(),
+    body('status').optional().trim().isIn(['yeni', 'görüldü', 'yanıtlandı'])
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
+    const { name, email, phone, vehicleId, message, status } = req.body;
+
+    db.run(
+        `INSERT INTO quotations (name, email, phone, vehicleId, message, status)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [name, email, phone, vehicleId, message, status || 'yeni'],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ id: this.lastID, name, email, phone, vehicleId, message, status: status || 'yeni' });
+        }
+    );
+});
+
+// PUT teklif durumunu güncelle (KORUNMALI)
+app.put('/api/quotations/:id', authenticateToken, (req, res) => {
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Durum gerekli' });
+    }
+
+    db.run(
+        "UPDATE quotations SET status = ? WHERE id = ?",
+        [status, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Teklif bulunamadı' });
+            }
+            res.json({ id: req.params.id, status });
+        }
+    );
+});
+
+// DELETE teklifi sil (KORUNMALI)
+app.delete('/api/quotations/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM quotations WHERE id = ?", [req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Teklif bulunamadı' });
+        }
+        res.json({ message: 'Teklif silindi' });
+    });
+});
+
+// ==========================================
+// RESERVATIONS (ARAÇ RESERVASYONLARı) API
+// ==========================================
+
+// GET tüm rezervasyonları al
+app.get('/api/reservations', (req, res) => {
+    db.all(`
+        SELECT r.*, v.model as vehicleName, v.price as vehiclePrice
+        FROM reservations r 
+        LEFT JOIN vehicles v ON r.vehicleId = v.id 
+        ORDER BY r.createdAt DESC
+    `, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+// POST yeni rezervasyon ekle
+app.post('/api/reservations', [
+    body('fullName').trim().notEmpty().isLength({ max: 100 }).escape(),
+    body('email').trim().isEmail().normalizeEmail(),
+    body('phone').trim().matches(/^[0-9+\s()-]{10,20}$/),
+    body('pickupLocation').trim().notEmpty().escape(),
+    body('dropoffLocation').trim().notEmpty().escape(),
+    body('pickupDate').trim().isISO8601().toDate(),
+    body('pickupTime').trim().notEmpty(),
+    body('dropoffDate').trim().isISO8601().toDate(),
+    body('dropoffTime').trim().notEmpty(),
+    body('vehicleId').optional().trim(),
+    body('specialRequests').optional().trim().isLength({ max: 500 }).escape(),
+    body('totalPrice').optional().trim()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
+    const { fullName, email, phone, pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime, vehicleId, specialRequests, totalPrice } = req.body;
+
+    db.run(
+        `INSERT INTO reservations (fullName, email, phone, pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime, vehicleId, specialRequests, totalPrice, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [fullName, email, phone, pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime, vehicleId || null, specialRequests || null, totalPrice || null, 'yeni'],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ 
+                id: this.lastID, 
+                fullName, email, phone, pickupLocation, dropoffLocation, 
+                pickupDate, pickupTime, dropoffDate, dropoffTime, 
+                vehicleId, specialRequests, totalPrice, status: 'yeni' 
+            });
+        }
+    );
+});
+
+// PUT rezervasyon durumunu güncelle (KORUNMALI)
+app.put('/api/reservations/:id', authenticateToken, (req, res) => {
+    const { status, totalPrice } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Durum gerekli' });
+    }
+
+    db.run(
+        "UPDATE reservations SET status = ?, totalPrice = ? WHERE id = ?",
+        [status, totalPrice || null, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+            }
+            res.json({ id: req.params.id, status, totalPrice });
+        }
+    );
+});
+
+// DELETE rezervasyonu sil (KORUNMALI)
+app.delete('/api/reservations/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM reservations WHERE id = ?", [req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Rezervasyon bulunamadı' });
+        }
+        res.json({ message: 'Rezervasyon silindi' });
+    });
+});
+
+// ==========================================
+// LOCATIONS (ALIŞ/İADE YERLERİ) API
+// ==========================================
+
+// GET tüm lokasyonları al
+app.get('/api/locations', (req, res) => {
+    db.all(`
+        SELECT * FROM locations 
+        WHERE isActive = 1
+        ORDER BY region ASC, name ASC
+    `, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+// GET tüm lokasyonları (admin - deaktif dahil)
+app.get('/api/locations/admin/all', (req, res) => {
+    db.all(`
+        SELECT * FROM locations 
+        ORDER BY region ASC, name ASC
+    `, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+// GET lokasyonları bölgeye göre grupla
+app.get('/api/locations/grouped', (req, res) => {
+    db.all(`
+        SELECT DISTINCT region FROM locations 
+        WHERE isActive = 1
+        ORDER BY region ASC
+    `, (err, regions) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (!regions) {
+            return res.json({});
+        }
+
+        const grouped = {};
+        let completed = 0;
+
+        regions.forEach(r => {
+            db.all(`
+                SELECT * FROM locations 
+                WHERE region = ? AND isActive = 1
+                ORDER BY name ASC
+            `, [r.region], (err, items) => {
+                if (!err) {
+                    grouped[r.region] = items;
+                }
+                completed++;
+                if (completed === regions.length) {
+                    res.json(grouped);
+                }
+            });
+        });
+    });
+});
+
+// POST yeni lokasyon ekle (KORUNMALI)
+app.post('/api/locations', authenticateToken, [
+    body('region').trim().notEmpty().escape(),
+    body('name').trim().notEmpty().escape(),
+    body('code').trim().notEmpty().escape()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
+    const { region, name, code, type } = req.body;
+
+    db.run(
+        "INSERT INTO locations (region, name, code, type) VALUES (?, ?, ?, ?)",
+        [region, name, code, type || 'airport'],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ id: this.lastID, region, name, code, type: type || 'airport', isActive: 1 });
+        }
+    );
+});
+
+// PUT lokasyon güncelle (KORUNMALI)
+app.put('/api/locations/:id', authenticateToken, [
+    body('region').trim().notEmpty().escape(),
+    body('name').trim().notEmpty().escape(),
+    body('code').trim().notEmpty().escape()
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const { region, name, code, type, isActive } = req.body;
+
+    db.run(
+        "UPDATE locations SET region = ?, name = ?, code = ?, type = ?, isActive = ? WHERE id = ?",
+        [region, name, code, type || 'airport', isActive !== undefined ? isActive : 1, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Lokasyon bulunamadı' });
+            }
+            res.json({ id: req.params.id, region, name, code, type, isActive });
+        }
+    );
+});
+
+// DELETE lokasyonu sil (KORUNMALI)
+app.delete('/api/locations/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM locations WHERE id = ?", [req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Lokasyon bulunamadı' });
+        }
+        res.json({ message: 'Lokasyon silindi' });
+    });
+});
+
+// Admin panel route
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Clear storage route
+app.get('/clear-storage.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'clear-storage.html'));
+});
+
+// Import vehicles route
+app.get('/import-vehicles.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'import-vehicles.html'));
+});
+
+// Image download endpoint (KORUNMALI - sadece admin)
+app.post('/api/download-image', authenticateToken, async (req, res) => {
+    const { imageUrl, vehicleName } = req.body;
+    
+    if (!imageUrl) {
+        return res.status(400).json({ error: 'Image URL gerekli' });
+    }
+
+    try {
+        // Dosya adını oluştur (güvenli hale getir)
+        const timestamp = Date.now();
+        const safeName = vehicleName 
+            ? vehicleName.replace(/[^a-z0-9]/gi, '_').toLowerCase() 
+            : 'vehicle';
+        const fileName = `${safeName}_${timestamp}.webp`;
+        const imgDir = path.join(__dirname, 'img');
+        const filePath = path.join(imgDir, fileName);
+
+        // img klasörü yoksa oluştur
+        if (!fs.existsSync(imgDir)) {
+            fs.mkdirSync(imgDir, { recursive: true });
+        }
+
+        // URL'den resmi indir
+        const file = fs.createWriteStream(filePath);
+        
+        https.get(imageUrl, (response) => {
+            if (response.statusCode !== 200) {
+                fs.unlinkSync(filePath);
+                return res.status(400).json({ error: 'Resim indirilemedi' });
+            }
+
+            response.pipe(file);
+
+            file.on('finish', () => {
+                file.close();
+                console.log(`✅ Resim indirildi: ${fileName}`);
+                res.json({ 
+                    success: true, 
+                    localPath: `/img/${fileName}`,
+                    fileName: fileName 
+                });
+            });
+        }).on('error', (err) => {
+            fs.unlinkSync(filePath);
+            console.error('❌ Download error:', err);
+            res.status(500).json({ error: 'Resim indirilemedi' });
+        });
+
+    } catch (error) {
+        console.error('❌ Image download error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== BACKUP API =====
+
+// Backups klasörünü oluştur
+const backupsDir = path.join(__dirname, 'backups');
+if (!fs.existsSync(backupsDir)) {
+    fs.mkdirSync(backupsDir, { recursive: true });
+}
+
+// GET Yedekleme listesi
+app.get('/api/backups', authenticateToken, (req, res) => {
+    try {
+        if (!fs.existsSync(backupsDir)) {
+            return res.json([]);
+        }
+
+        const files = fs.readdirSync(backupsDir)
+            .filter(file => file.endsWith('.zip'))
+            .map(file => {
+                const stats = fs.statSync(path.join(backupsDir, file));
+                return {
+                    name: file,
+                    size: (stats.size / 1024 / 1024).toFixed(2) + ' MB',
+                    sizeBytes: stats.size,
+                    date: stats.mtime,
+                    dateFormatted: new Date(stats.mtime).toLocaleString('tr-TR')
+                };
+            })
+            .sort((a, b) => b.date - a.date); // Yeniden eskiye sırala
+
+        res.json(files);
+    } catch (error) {
+        console.error('❌ Backup listesi hatası:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST Yedekleme oluştur
+app.post('/api/backups/create', authenticateToken, async (req, res) => {
+    try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        const backupFileName = `backup-${timestamp}.zip`;
+        const backupPath = path.join(backupsDir, backupFileName);
+
+        const output = fs.createWriteStream(backupPath);
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Maksimum sıkıştırma
+        });
+
+        // Hata kontrolü
+        output.on('error', (err) => {
+            console.error('❌ Output stream hatası:', err);
+            res.status(500).json({ error: 'Yedekleme dosyası oluşturulamadı' });
+        });
+
+        archive.on('error', (err) => {
+            console.error('❌ Archive hatası:', err);
+            res.status(500).json({ error: 'Yedekleme arşivi oluşturulamadı' });
+        });
+
+        archive.on('warning', (err) => {
+            if (err.code === 'ENOENT') {
+                console.warn('⚠️ Archive uyarısı:', err);
+            } else {
+                throw err;
+            }
+        });
+
+        // Yedekleme tamamlandığında
+        output.on('close', () => {
+            const sizeInMB = (archive.pointer() / 1024 / 1024).toFixed(2);
+            console.log(`✅ Yedekleme tamamlandı: ${backupFileName} (${sizeInMB} MB)`);
+            res.json({
+                success: true,
+                message: 'Yedekleme başarıyla oluşturuldu',
+                file: backupFileName,
+                size: sizeInMB + ' MB'
+            });
+        });
+
+        archive.pipe(output);
+
+        // Veritabanını ekle
+        if (fs.existsSync('./data.db')) {
+            archive.file('./data.db', { name: 'data.db' });
+        }
+
+        // Tüm proje dosyalarını ekle (node_modules ve backups hariç)
+        const excludeDirs = ['node_modules', 'backups', '.git', 'dist'];
+        
+        // Kaynak dosyaları ekle
+        if (fs.existsSync('./src')) {
+            archive.directory('./src', 'src', (entry) => {
+                return !excludeDirs.some(dir => entry.name.includes(dir));
+            });
+        }
+
+        // Public dosyalarını ekle
+        if (fs.existsSync('./public')) {
+            archive.directory('./public', 'public');
+        }
+
+        // Resim klasörünü ekle
+        if (fs.existsSync('./img')) {
+            archive.directory('./img', 'img');
+        }
+
+        // Konfigürasyon dosyalarını ekle
+        const configFiles = [
+            'package.json',
+            'server.cjs',
+            'vite.config.js',
+            'tailwind.config.js',
+            'tsconfig.json',
+            'eslint.config.js',
+            'biome.json',
+            'postcss.config.js',
+            'netlify.toml',
+            'index.html',
+            'admin.html',
+            'import-vehicles.html'
+        ];
+
+        configFiles.forEach(file => {
+            if (fs.existsSync(file)) {
+                archive.file(file, { name: file });
+            }
+        });
+
+        // Arşivi tamamla
+        await archive.finalize();
+
+    } catch (error) {
+        console.error('❌ Backup oluşturma hatası:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET Yedekleme indir
+app.get('/api/backups/download/:filename', authenticateToken, (req, res) => {
+    try {
+        const filename = req.params.filename;
+        
+        // Güvenlik kontrolü - path traversal saldırılarını önle
+        if (!filename.endsWith('.zip') || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+            return res.status(400).json({ error: 'Geçersiz dosya adı' });
+        }
+        
+        const filePath = path.resolve(backupsDir, filename);
+        
+        // Path'in backupsDir içinde olduğunu doğrula
+        if (!filePath.startsWith(path.resolve(backupsDir))) {
+            return res.status(400).json({ error: 'Geçersiz dosya yolu' });
+        }
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Yedekleme dosyası bulunamadı' });
+        }
+
+        res.download(filePath, filename, (err) => {
+            if (err) {
+                console.error('❌ Download hatası:', err);
+                res.status(500).json({ error: 'Dosya indirilemedi' });
+            }
+        });
+    } catch (error) {
+        console.error('❌ Backup download hatası:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE Yedekleme sil
+app.delete('/api/backups/:filename', authenticateToken, (req, res) => {
+    try {
+        const filename = req.params.filename;
+        
+        // Güvenlik kontrolü
+        if (!filename.endsWith('.zip') || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+            return res.status(400).json({ error: 'Geçersiz dosya adı' });
+        }
+        
+        const filePath = path.resolve(backupsDir, filename);
+        
+        // Path'in backupsDir içinde olduğunu doğrula
+        if (!filePath.startsWith(path.resolve(backupsDir))) {
+            return res.status(400).json({ error: 'Geçersiz dosya yolu' });
+        }
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Yedekleme dosyası bulunamadı' });
+        }
+
+        fs.unlinkSync(filePath);
+        console.log(`✅ Yedekleme silindi: ${filename}`);
+        res.json({ success: true, message: 'Yedekleme başarıyla silindi' });
+    } catch (error) {
+        console.error('❌ Backup silme hatası:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Multer konfigürasyonu - dosya yükleme için
+const upload = multer({
+    dest: path.join(backupsDir, 'temp'),
+    limits: {
+        fileSize: 100 * 1024 * 1024 // 100 MB max
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.originalname.endsWith('.zip')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Sadece .zip dosyaları desteklenir'));
+        }
+    }
+});
+
+// POST Yedek yükleme (Restore)
+app.post('/api/backups/restore', authenticateToken, upload.single('backup'), async (req, res) => {
+    let tempFilePath = null;
+    
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'Dosya yüklenmedi' });
+        }
+
+        tempFilePath = req.file.path;
+        console.log(`📦 Yedek dosyası yüklendi: ${req.file.originalname}`);
+
+        // ZIP dosyasını aç
+        const zip = new AdmZip(tempFilePath);
+        const zipEntries = zip.getEntries();
+
+        console.log('📂 ZIP içeriği kontrol ediliyor...');
+
+        // Veritabanını geri yükle
+        const dbEntry = zipEntries.find(entry => entry.entryName === 'data.db');
+        if (dbEntry) {
+            // Mevcut veritabanını yedekle
+            const dbBackupPath = './data.db.backup-' + Date.now();
+            if (fs.existsSync('./data.db')) {
+                fs.copyFileSync('./data.db', dbBackupPath);
+                console.log(`💾 Mevcut veritabanı yedeklendi: ${dbBackupPath}`);
+            }
+
+            // Yeni veritabanını çıkart
+            zip.extractEntryTo(dbEntry, './', false, true);
+            console.log('✅ Veritabanı geri yüklendi');
+        }
+
+        // Resimleri geri yükle
+        const imgDir = './img';
+        if (!fs.existsSync(imgDir)) {
+            fs.mkdirSync(imgDir, { recursive: true });
+        }
+
+        const imgEntries = zipEntries.filter(entry => 
+            entry.entryName.startsWith('img/') && !entry.isDirectory
+        );
+
+        if (imgEntries.length > 0) {
+            // Mevcut resimleri yedekle
+            const imgBackupDir = './img-backup-' + Date.now();
+            if (fs.existsSync(imgDir)) {
+                fs.renameSync(imgDir, imgBackupDir);
+                console.log(`💾 Mevcut resimler yedeklendi: ${imgBackupDir}`);
+                fs.mkdirSync(imgDir, { recursive: true });
+            }
+
+            // Yeni resimleri çıkart
+            imgEntries.forEach(entry => {
+                const fileName = path.basename(entry.entryName);
+                zip.extractEntryTo(entry, imgDir, false, true, false, fileName);
+            });
+            console.log(`✅ ${imgEntries.length} resim geri yüklendi`);
+        }
+
+        // Kaynak dosyaları geri yükle (isteğe bağlı)
+        const srcDir = './src';
+        const srcEntries = zipEntries.filter(entry => 
+            entry.entryName.startsWith('src/') && !entry.isDirectory
+        );
+
+        if (srcEntries.length > 0) {
+            // Mevcut src'yi yedekle
+            const srcBackupDir = './src-backup-' + Date.now();
+            if (fs.existsSync(srcDir)) {
+                fs.renameSync(srcDir, srcBackupDir);
+                console.log(`💾 Mevcut kaynak dosyaları yedeklendi: ${srcBackupDir}`);
+                fs.mkdirSync(srcDir, { recursive: true });
+            }
+
+            // Yeni kaynak dosyalarını çıkart
+            zip.extractAllTo('./', true);
+            console.log(`✅ Kaynak dosyaları geri yüklendi`);
+        }
+
+        // Temp dosyasını sil
+        fs.unlinkSync(tempFilePath);
+
+        console.log('🎉 Yedek başarıyla geri yüklendi!');
+        res.json({
+            success: true,
+            message: 'Yedek başarıyla geri yüklendi',
+            restored: {
+                database: !!dbEntry,
+                images: imgEntries.length,
+                sourceFiles: srcEntries.length
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Restore hatası:', error);
+        
+        // Temp dosyasını temizle
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+        }
+        
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// SPA Fallback - Tüm diğer route'lardan sonra gelmeli
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+// Server başlat
+const server = app.listen(PORT, '127.0.0.1', () => {
+    console.log(`\n✅ EXPRESS HAZIR! Port: ${PORT}`);
+    console.log(`🚀 Sunucu URL: http://localhost:${PORT}\n`);
+});
+
+server.on('error', (err) => {
+    console.error('❌ SERVER ERROR:', err);
+    process.exit(1);
+});
+
+// Uncaught error handler
+process.on('uncaughtException', (err) => {
+    console.error('❌ UNCAUGHT EXCEPTION:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ UNHANDLED REJECTION:', reason);
+});

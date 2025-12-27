@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /setup.html
+Disallow: /api/
+Disallow: /server.cjs
+Disallow: /package.json
+Disallow: /node_modules/
+Disallow: /clear-storage.html
+Disallow: /import-vehicles.html
+Disallow: /reset.js
+
+Sitemap: https://kiralikcar.com/sitemap.xml

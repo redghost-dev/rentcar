@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Raleway:wght@600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css');
+
+:root {
+  --color-primary: #ef4444;
+  --color-primary-dark: #dc2626;
+  --color-accent: #F59E0B;
+  --color-accent-light: #FEF3C7;
+}
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  color: #374151;
+}
+
+:root {
+  --color-primary: #ef4444;
+  --color-primary-dark: #1f2937;
+}
+
+.theme-primary-bg {
+  background-color: var(--color-primary);
+}
+
+.theme-primary-text {
+  color: var(--color-primary);
+}
+
+.theme-primary-border {
+  border-color: var(--color-primary);
+}
+
+/* Slider araç görseli hizalama (masaüstü) */
+@media (min-width: 768px) {
+  .slider-car-center {
+    justify-content: flex-start;
+    margin-left: -12rem;
+  }
+}
+
+/* Gradient Buttons */
+.gradient-primary {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #D97706 100%);
+}
+
+.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+
+.text-primary {
+  color: var(--color-primary) !important;
+}
+
+.border-primary {
+  border-color: var(--color-primary) !important;
+}
+
+.bg-whatsapp {
+  background-color: #25D366 !important;
+}
+
+.text-whatsapp {
+  color: #25D366 !important;
+}
+
+.bg-accent {
+  background-color: var(--color-accent) !important;
+}
+
+.text-accent {
+  color: var(--color-accent) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounceIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 1.2s ease-in-out forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 1s ease-in-out forwards;
+}
+
+.animate-slide-left {
+    animation: slideInLeft 1.2s ease-in-out forwards;
+}
+
+.animate-slide-right {
+    animation: slideInRight 1.2s ease-in-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideInUp 1.2s ease-in-out forwards;
+}
+
+.animate-zoom-in {
+    animation: zoomIn 1.2s ease-in-out forwards;
+}
+
+.animate-bounce-in {
+    animation: bounceIn 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.4s ease-out forwards;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Araç listesi mobil grid ayarı */
+@media (max-width: 768px) {
+  #vehicle-list {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  /* Mobilde araç görselini yolun ortasına indirmek için */
+  .slider-car-mobile {
+    transform: translate(6%, 46%) !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

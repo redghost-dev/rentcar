@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Araç Kiralama - En Uygun Fiyatlarla Rent a Car Hizmeti | Kiralık Car</title>
+    <meta name="description" content="Kiralık Car ile en uygun fiyatlarla araç kiralayın. Geniş araç filosu, günlük, haftalık ve aylık kiralama seçenekleri. Hemen online rezervasyon yapın!">
+    <meta name="keywords" content="araç kiralama, rent a car, oto kiralama, kiralık araba, ucuz araç kiralama, günlük araç kiralama, filo kiralama, lüks araç kiralama, havalimanı araç kiralama">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Kiralık Car">
+    <link rel="canonical" href="https://kiralikcar.com/">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 2a6 6 0 0 1 6 6c0 .98-.234 1.903-.646 2.72l-3.46-2a2 2 0 1 0-3.788 0l-3.46 2A5.96 5.96 0 0 1 6 12a6 6 0 0 1 6-6z'/%3E%3C/svg%3E">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kiralikcar.com/">
+    <meta property="og:title" content="Araç Kiralama - En Uygun Fiyatlarla Rent a Car Hizmeti">
+    <meta property="og:description" content="Kiralık Car ile en uygun fiyatlarla araç kiralayın. Geniş araç filosu, günlük, haftalık ve aylık kiralama seçenekleri.">
+    <meta property="og:image" content="https://kiralikcar.com/img/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kiralikcar.com/">
+    <meta property="twitter:title" content="Araç Kiralama - En Uygun Fiyatlarla Rent a Car Hizmeti">
+    <meta property="twitter:description" content="Kiralık Car ile en uygun fiyatlarla araç kiralayın. Geniş araç filosu, günlük, haftalık ve aylık kiralama seçenekleri.">
+    <meta property="twitter:image" content="https://kiralikcar.com/img/og-image.jpg">
+
+    <!-- Geo Tags (Turkey) -->
+    <meta name="geo.region" content="TR">
+    <meta name="geo.placename" content="İstanbul">
+    <meta name="geo.position" content="41.0082;28.9784">
+    <meta name="ICBM" content="41.0082, 28.9784">
+
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AutoRental",
+      "name": "Kiralık Car",
+      "image": "https://kiralikcar.com/img/logo.png",
+      "description": "En uygun fiyatlarla güvenilir araç kiralama hizmeti.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Merkez Mah.",
+        "addressLocality": "İstanbul",
+        "addressRegion": "TR",
+        "postalCode": "34000",
+        "addressCountry": "TR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 41.0082,
+        "longitude": 28.9784
+      },
+      "url": "https://kiralikcar.com",
+      "telephone": "+905551234567",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ],
+          "opens": "00:00",
+          "closes": "23:59"
+        }
+      ],
+      "priceRange": "₺₺"
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="/src/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--color-primary)',
+                        secondary: 'var(--color-primary-dark)',
+                        whatsapp: '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
+    <script type="module">
+        import { applyThemeToDocument, applyContactInfoToDocument } from './src/site-settings.js';
+        applyThemeToDocument(document);
+        applyContactInfoToDocument(document);
+    </script>
+</head>
+<body class="bg-gray-50 pb-16 md:pb-0">
+
+    <!-- Çerez Banner -->
+    <div id="cookieBanner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 md:p-6 pb-20 md:pb-6 shadow-2xl z-[60] border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                <div class="flex-1">
+                    <p class="text-sm md:text-base leading-relaxed">
+                        <span class="font-semibold">🍪 Çerezleri Kullanıyoruz</span><br>
+                        Bu site, deneyiminizi iyileştirmek ve istatistikler almak için çerezleri kullanır. Siteyi kullanmaya devam ederek, çerez politikamızı kabul etmiş olursunuz.
+                    </p>
+                </div>
+                <div class="flex gap-3 flex-shrink-0">
+                    <button onclick="acceptCookies()" class="px-6 py-2 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="ri-check-line"></i> Kabul Et
+                    </button>
+                    <button onclick="rejectCookies()" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="ri-close-line"></i> Reddet
+                    </button>
+                    <a href="#" onclick="showCookiePolicy(event)" class="px-4 py-2 text-primary hover:text-blue-300 font-semibold underline transition-all duration-300 whitespace-nowrap">
+                        Detay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ana Header (sadece masaüstü) -->
+    <div class="hidden md:block bg-white border-b border-gray-100/80">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo / Marka -->
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                    <i class="ri-steering-2-line text-lg text-primary"></i>
+                </div>
+                <div class="flex flex-col leading-tight">
+                    <span class="text-[18px] font-semibold tracking-tight text-gray-900 group-hover:text-primary transition-colors">kiralikcar.com</span>
+                    <span class="text-[11px] text-gray-500">Şehrinizde online araç kiralama</span>
+                </div>
+            </a>
+
+            <!-- Menü -->
+            <nav class="flex items-center gap-6 text-[13px] text-gray-600">
+                <a href="#araclar" class="hover:text-primary transition-colors">Araçlar</a>
+                <a href="/hakkimizda.html" class="hover:text-primary transition-colors">Hakkımızda</a>
+                <a href="#contact" class="hover:text-primary transition-colors">İletişim</a>
+                <button onclick="scrollToReservation()" class="ml-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary text-white text-[12px] tracking-wide hover:bg-red-600 hover:shadow-sm transition-all">
+                    Rezervasyon Yap
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <section class="relative bg-gray-900 text-white h-[460px] md:h-[420px] lg:h-[460px] overflow-hidden animate-fade-in shadow-lg">
+        <div id="heroSlider" class="absolute inset-0"></div>
+        <button onclick="changeSlide(-1)" class="hidden md:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 bg-white/30 hover:bg-white/50 active:scale-95 text-white w-10 h-10 md:w-12 md:h-12 rounded-full items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-lg">
+            <i class="ri-arrow-left-line text-xl md:text-2xl"></i>
+        </button>
+        <button onclick="changeSlide(1)" class="hidden md:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 bg-white/30 hover:bg-white/50 active:scale-95 text-white w-10 h-10 md:w-12 md:h-12 rounded-full items-center justify-center transition-all duration-200 backdrop-blur-sm shadow-lg">
+            <i class="ri-arrow-right-line text-xl md:text-2xl"></i>
+        </button>
+    </section>
+
+    <!-- Hızlı Rezervasyon Modalı -->
+    <div id="quickReservationModal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center px-3 md:px-0">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-gray-100">
+                <div>
+                    <p class="text-xs md:text-sm text-primary font-semibold uppercase tracking-wide">Hızlı Online Rezervasyon</p>
+                    <h3 id="quickVehicleTitle" class="text-base md:text-lg font-bold text-gray-900">Araç Seçilmedi</h3>
+                </div>
+                <button type="button" id="quickReservationClose" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500">
+                    <i class="ri-close-line text-lg"></i>
+                </button>
+            </div>
+
+            <form id="quickReservationForm" class="px-4 md:px-6 py-4 md:py-5 space-y-4">
+                <input type="hidden" id="quickVehicleId" name="vehicleId">
+                <input type="hidden" id="quickVehiclePrice" name="vehiclePrice">
+
+                <!-- Kampanya Bilgisi -->
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 md:p-4 flex items-start gap-3">
+                    <div class="mt-0.5">
+                        <i class="ri-megaphone-fill text-orange-500 text-xl"></i>
+                    </div>
+                    <div class="text-xs md:text-sm text-orange-900" id="quickCampaignInfo">
+                        Online rezervasyona özel <span id="quickDiscountRateLabel" class="font-semibold">%15</span> indirim, <span id="quickVatRateLabel" class="font-semibold">%20</span> KDV dahildir.
+                    </div>
+                </div>
+
+                <!-- Kullanıcı Bilgileri -->
+                <div class="grid md:grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Ad Soyad</label>
+                        <input type="text" id="quickFullName" name="fullName" required
+                               class="w-full px-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary" placeholder="Adınız Soyadınız">
+                    </div>
+                    <div>
+                        <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Telefon</label>
+                        <input type="tel" id="quickPhone" name="phone" required
+                               class="w-full px-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary" placeholder="05xx xxx xx xx">
+                    </div>
+                </div>
+
+                <!-- Tarih Aralığı -->
+                <div class="grid md:grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Alış Tarihi</label>
+                        <input type="date" id="quickPickupDate" name="pickupDate" required
+                               class="w-full px-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1">İade Tarihi</label>
+                        <input type="date" id="quickDropoffDate" name="dropoffDate" required
+                               class="w-full px-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary">
+                    </div>
+                </div>
+
+                <!-- Fiyat Özeti -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 md:p-4 space-y-2 text-xs md:text-sm" id="quickPriceBox">
+                    <div class="flex justify-between">
+                        <span>Toplam Gün</span>
+                        <span id="quickDays" class="font-semibold">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Ara Toplam</span>
+                        <span id="quickSubtotal" class="font-semibold">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>KDV</span>
+                        <span id="quickVat" class="font-semibold">-</span>
+                    </div>
+                    <div class="flex justify-between text-green-700">
+                        <span>Online Rezervasyon İndirimi</span>
+                        <span id="quickDiscount" class="font-semibold">-</span>
+                    </div>
+                    <div class="border-t border-dashed border-gray-300 pt-2 mt-1 flex justify-between text-sm md:text-base font-bold text-gray-900">
+                        <span>Toplam Ödenecek</span>
+                        <span id="quickTotal">-</span>
+                    </div>
+                </div>
+
+                <!-- Basit CAPTCHA -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 md:p-4 space-y-2 text-xs md:text-sm">
+                    <p class="font-semibold text-gray-700 mb-1">
+                        Güvenlik Doğrulaması
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <span id="quickCaptchaQuestion" class="text-sm font-medium text-gray-800"></span>
+                        <input type="number" id="quickCaptchaAnswer" class="w-20 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary" placeholder="Cevap">
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-1">
+                        Lütfen insan olduğunuzu doğrulamak için bu basit soruyu cevaplayın.
+                    </p>
+                </div>
+
+                <!-- Bilgilendirme -->
+                <p class="text-[11px] md:text-xs text-gray-500 leading-snug">
+                    Rezervasyon talebiniz alındıktan sonra operatörlerimiz en kısa sürede sizi arayarak bilgileri doğrulayacaktır. Maksimum geri dönüş süresi <span class="font-semibold text-gray-700">30 dakikadır</span>.
+                </p>
+
+                <!-- Hata/Info Mesajı -->
+                <div id="quickReservationMessage" class="hidden text-xs md:text-sm rounded-lg px-3 py-2"></div>
+
+                <!-- Butonlar -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-1 md:pt-2 pb-2 md:pb-4">
+                    <button type="button" id="quickReservationCancel" class="w-full md:w-auto px-4 py-2.5 text-sm font-semibold rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100">
+                        Vazgeç
+                    </button>
+                    <button type="submit" id="quickReservationSubmit" class="w-full md:w-auto px-4 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-red-600 flex items-center justify-center gap-2">
+                        <i class="ri-send-plane-2-line text-base"></i>
+                        <span>Rezervasyon Talebi Gönder</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Araçlar Bölümü (slaytın hemen altı) -->
+    <section id="araclar" class="py-16 bg-white" data-delay="0.3s">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-4">
+                Popüler Araçlarımız
+            </h2>
+            <p class="text-center text-gray-600 mb-8">İhtiyacınıza uygun aracı seçin ve hemen kiralayın</p>
+
+            <!-- Kategori Filtreleme Butonları -->
+            <div class="flex overflow-x-auto md:justify-center gap-3 md:gap-4 mb-8 md:mb-10 pb-2 px-4 md:px-0 -mx-4 md:mx-0 no-scrollbar">
+                <button onclick="filterVehicles('Ticari')" class="category-btn px-4 md:px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-600 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 transition-all hover:border-primary hover:text-primary hover:shadow-lg hover:-translate-y-0.5">
+                    Ticari Araçlar
+                </button>               
+                <button onclick="filterVehicles('Lüks')" class="category-btn px-4 md:px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-600 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 transition-all hover:border-primary hover:text-primary hover:shadow-lg hover:-translate-y-0.5">
+                    Lüks Araçlar
+                </button>
+                <button onclick="filterVehicles('Binek')" class="category-btn px-4 md:px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-600 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 transition-all hover:border-primary hover:text-primary hover:shadow-lg hover:-translate-y-0.5">
+                    Binek Araçlar
+                </button>
+                <button onclick="filterVehicles('all')" class="category-btn active px-4 md:px-6 py-2 rounded-full border border-primary bg-primary text-white font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 transition-all hover:shadow-lg hover:-translate-y-0.5">
+                    Tüm Araçlar
+                </button>
+            </div>
+
+            <div id="vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                <div class="text-center py-8 col-span-full">Araçlar yükleniyor...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Online Rezervasyon Butonu Bölümü -->
+    <section class="py-8 bg-white flex items-center justify-center">
+        <button onclick="scrollToReservation()" class="px-8 py-4 bg-gradient-to-r from-primary to-red-600 text-white font-bold text-lg rounded-xl shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 flex items-center gap-3 backdrop-blur-sm border border-white/20">
+            <i class="ri-calendar-check-line text-xl"></i>
+            <span>Online Rezervasyon Yap</span>
+            <i class="ri-arrow-down-line text-lg animate-bounce"></i>
+        </button>
+    </section>
+
+    <!-- Advantages Section -->
+    <section id="hakkimizda" class="py-16 bg-gray-100" data-delay="0.2s">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-12">
+                Neden Bizi Tercih Etmelisiniz?
+            </h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ri-car-line text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg text-secondary mb-2"><a href="/hakkimizda.html" class="hover:text-primary transition-colors">Geniş Araç Filosu</a></h3>
+                    <p class="text-gray-600 text-sm">Ekonomiden lükse tüm sınıflarda araçlar</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ri-shield-check-line text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg text-secondary mb-2">Güvenilir Hizmet</h3>
+                    <p class="text-gray-600 text-sm">Kasko ve sigorta dahil güvenli kiralama</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ri-price-tag-3-line text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg text-secondary mb-2">Uygun Fiyatlar</h3>
+                    <p class="text-gray-600 text-sm">Piyasanın en rekabetçi fiyatları</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ri-customer-service-2-line text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg text-secondary mb-2">7/24 Destek</h3>
+                    <p class="text-gray-600 text-sm">Her an yanınızdayız</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Güvenlik & Kalite Göstergeleri -->
+    <section class="py-12 bg-white border-t border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- SSL Güvenliği -->
+                <div class="flex items-center gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex-shrink-0">
+                        <i class="ri-shield-check-fill text-3xl text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm">SSL Koruması</p>
+                        <p class="text-xs text-gray-600">Güvenli HTTPS bağlantısı</p>
+                    </div>
+                </div>
+
+                <!-- Veri Gizliliği -->
+                <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex-shrink-0">
+                        <i class="ri-lock-fill text-3xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm">KVKK Uyumlu</p>
+                        <p class="text-xs text-gray-600">Verileriniz tamamen gizli</p>
+                    </div>
+                </div>
+
+                <!-- Sigorta Garantisi -->
+                <div class="flex items-center gap-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <div class="flex-shrink-0">
+                        <i class="ri-gold-coin-fill text-3xl text-amber-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm">Tam Sigorta</p>
+                        <p class="text-xs text-gray-600">Kasko ve kapsamlı koruma</p>
+                    </div>
+                </div>
+
+                <!-- Onaylanmış Sistem -->
+                <div class="flex items-center gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="flex-shrink-0">
+                        <i class="ri-verified-badge-fill text-3xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm">Sertifikalı Hizmet</p>
+                        <p class="text-xs text-gray-600">ISO 9001 standartları</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Online Araç Rezervasyon Formu -->
+    <section id="contact" class="py-16 bg-gradient-to-br from-blue-50 via-white to-blue-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-5xl mx-auto">
+                <!-- Başlık -->
+                <div class="text-center mb-12">
+                 
+                    <h2 class="text-3xl md:text-5xl font-bold text-secondary mb-3">
+                        Online Araç Rezervasyonu
+                    </h2>
+                    <p class="text-gray-600 text-lg">
+                        Hızlı, güvenli ve kolay. İstediğiniz tarihlerde araç rezerve edin.
+                    </p>
+                </div>
+                
+                <!-- Rezervasyon Formu -->
+                <div id="reservationFormContainer" class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <!-- İlk satır - Alış/İade Bilgileri -->
+                    <div class="bg-gradient-to-r from-primary to-red-600 text-white p-6 md:p-8">
+                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <i class="ri-map-pin-line text-2xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-white/80 text-sm">ALIŞ YERİ</p>
+                                    <p class="font-semibold text-lg">Nereyi seç</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <i class="ri-map-pin-2-line text-2xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-white/80 text-sm">İADE YERİ</p>
+                                    <p class="font-semibold text-lg">Nereyi seç</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-white/90 text-sm"><i class="ri-information-line mr-2"></i>Alış ve İade yerlerini seçerek başlayın</p>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="reservationForm" class="p-8 md:p-10 space-y-6">
+                        <!-- Adım 1: Lokasyon -->
+                        <div class="border-b pb-8">
+                            <h3 class="text-lg font-bold text-secondary mb-6 flex items-center gap-3">
+                                <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                                Alış ve İade Yerleri
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <!-- Alış Yeri -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-map-pin-line text-primary"></i>Alış Yeri
+                                    </label>
+                                    <select name="pickupLocation" id="pickupLocation"
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition text-gray-700 font-medium"
+                                            required>
+                                        <option value="">-- Alış Yeri Seçin --</option>
+                                    </select>
+                                </div>
+                                <!-- İade Yeri -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-map-pin-2-line text-primary"></i>İade Yeri
+                                    </label>
+                                    <select name="dropoffLocation" id="dropoffLocation"
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition text-gray-700 font-medium"
+                                            required>
+                                        <option value="">-- İade Yeri Seçin --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 2: Tarih ve Saat -->
+                        <div class="border-b pb-8">
+                            <h3 class="text-lg font-bold text-secondary mb-6 flex items-center gap-3">
+                                <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                                Tarih ve Saat
+                            </h3>
+                            <div class="grid md:grid-cols-4 gap-4">
+                                <!-- Alış Tarihi -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2 text-sm">
+                                        <i class="ri-calendar-event-line text-primary"></i>Alış Tarihi
+                                    </label>
+                                    <input type="date" name="pickupDate" id="pickupDate"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                           required>
+                                </div>
+
+                                <!-- Alış Saati -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2 text-sm">
+                                        <i class="ri-time-line text-primary"></i>Alış Saati
+                                    </label>
+                                    <select name="pickupTime" id="pickupTime"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition text-gray-700 font-medium"
+                                           required>
+                                        <option value="">-- Saat seçin --</option>
+                                        <option value="00:00">00:00 (Gece)</option>
+                                        <option value="01:00">01:00</option>
+                                        <option value="02:00">02:00</option>
+                                        <option value="03:00">03:00</option>
+                                        <option value="04:00">04:00</option>
+                                        <option value="05:00">05:00</option>
+                                        <option value="06:00">06:00</option>
+                                        <option value="07:00">07:00</option>
+                                        <option value="08:00">08:00</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="12:00">12:00 (Öğle)</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="19:00">19:00</option>
+                                        <option value="20:00">20:00</option>
+                                        <option value="21:00">21:00</option>
+                                        <option value="22:00">22:00</option>
+                                        <option value="23:00">23:00</option>
+                                    </select>
+                                </div>
+
+                                <!-- İade Tarihi -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2 text-sm">
+                                        <i class="ri-calendar-event-line text-primary"></i>İade Tarihi
+                                    </label>
+                                    <input type="date" name="dropoffDate" id="dropoffDate"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                           required>
+                                </div>
+
+                                <!-- İade Saati -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2 text-sm">
+                                        <i class="ri-time-line text-primary"></i>İade Saati
+                                    </label>
+                                    <select name="dropoffTime" id="dropoffTime"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition text-gray-700 font-medium"
+                                           required>
+                                        <option value="">-- Saat seçin --</option>
+                                        <option value="00:00">00:00 (Gece)</option>
+                                        <option value="01:00">01:00</option>
+                                        <option value="02:00">02:00</option>
+                                        <option value="03:00">03:00</option>
+                                        <option value="04:00">04:00</option>
+                                        <option value="05:00">05:00</option>
+                                        <option value="06:00">06:00</option>
+                                        <option value="07:00">07:00</option>
+                                        <option value="08:00">08:00</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="12:00">12:00 (Öğle)</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="19:00">19:00</option>
+                                        <option value="20:00">20:00</option>
+                                        <option value="21:00">21:00</option>
+                                        <option value="22:00">22:00</option>
+                                        <option value="23:00">23:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 3: Kişisel Bilgiler -->
+                        <div class="border-b pb-8">
+                            <h3 class="text-lg font-bold text-secondary mb-6 flex items-center gap-3">
+                                <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                                Kişisel Bilgiler
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <!-- Ad Soyad -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-user-line text-primary"></i>Ad Soyad
+                                    </label>
+                                    <input type="text" name="fullName" id="fullName"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                           placeholder="Adınız Soyadınız" required>
+                                </div>
+
+                                <!-- Email -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-mail-line text-primary"></i>Email Adresiniz
+                                    </label>
+                                    <input type="email" name="email" id="email"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                           placeholder="ornek@email.com" required>
+                                </div>
+
+                                <!-- Telefon -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-phone-line text-primary"></i>Telefon Numarası
+                                    </label>
+                                    <input type="tel" name="phone" id="phone"
+                                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                           placeholder="0555 123 45 67" required>
+                                </div>
+
+                                <!-- Araç Seçimi (Opsiyonel) -->
+                                <div>
+                                    <label class="block text-secondary font-semibold mb-3 flex items-center gap-2">
+                                        <i class="ri-car-line text-primary"></i>Tercih Ettiğiniz Araç
+                                    </label>
+                                    <select name="vehicleId" id="vehicleId"
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition text-gray-700">
+                                        <option value="">-- Araç seçin (Opsiyonel) --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adım 4: Güvenlik Doğrulaması (CAPTCHA) -->
+                        <div class="border-b pb-8">
+                            <h3 class="text-lg font-bold text-secondary mb-4 flex items-center gap-3">
+                                <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                                Güvenlik Doğrulaması
+                            </h3>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 text-sm">
+                                <p class="font-semibold text-gray-700 mb-1">
+                                    Lütfen aşağıdaki basit soruyu cevaplayın.
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span id="reservationCaptchaQuestion" class="text-sm font-medium text-gray-800"></span>
+                                    <input type="number" name="captchaAnswer" id="reservationCaptchaAnswer" class="w-24 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-primary" placeholder="Cevap">
+                                </div>
+                                <p class="text-[11px] text-gray-500 mt-1">
+                                    Bu doğrulama, otomatik gönderimleri engellemek için kullanılmaktadır.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Adım 4: Ek İstekler -->
+                        <div class="pb-8">
+                            <h3 class="text-lg font-bold text-secondary mb-6 flex items-center gap-3">
+                                <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                                Ek İstekler (Opsiyonel)
+                            </h3>
+                            <textarea name="specialRequests" id="specialRequests"
+                                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition"
+                                      rows="4" placeholder="Örn: Çocuk koltuğu, sürücü yardımı, vb."></textarea>
+                        </div>
+
+                        <!-- Gönder Butonu -->
+                        <div class="pt-6 border-t">
+                            <button type="submit"
+                                    class="w-full bg-gradient-to-r from-primary to-red-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-lg transition transform hover:scale-[1.02] flex items-center justify-center gap-3">
+                                <i class="ri-send-plane-2-line text-xl"></i>
+                                Rezervasyon Talebini Gönder
+                            </button>
+                            <p class="text-center text-gray-500 text-sm mt-4">
+                                <i class="ri-shield-check-line mr-1"></i>Verileriniz güvenli sunucularımızda korunmaktadır.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Testimonials Section -->
+    <section class="py-16 bg-gray-100" data-delay="0.3s" data-animation="animate-slide-right">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-secondary mb-12">
+                Müşteri Geri Bildirimleri
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4 italic">"Harika bir hizmet! Araç çok temiz ve yeni. Fiyatlar uygun, öneriyorum."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary to-red-600 rounded-full flex items-center justify-center text-white font-bold">A</div>
+                        <div>
+                            <p class="font-semibold text-secondary">Ahmet Yılmaz</p>
+                            <p class="text-xs text-gray-500">İstanbul</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4 italic">"Profesyonel ekip, hızlı hizmet. Tatil boyunca hiç sorun yaşamadık."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold">F</div>
+                        <div>
+                            <p class="font-semibold text-secondary">Fatma Kaya</p>
+                            <p class="text-xs text-gray-500">Ankara</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                        <i class="ri-star-fill text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4 italic">"En ucuz fiyatlarla en iyi araçlar. Tekrar mutlaka kiralacağım."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center text-white font-bold">M</div>
+                        <div>
+                            <p class="font-semibold text-secondary">Mehmet Demir</p>
+                            <p class="text-xs text-gray-500">İzmir</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-16" data-delay="0.5s">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Şirket Bilgileri -->
+                <div>
+                    <h3 class="text-white font-bold text-xl mb-4">kiralikcar.com</h3>
+                    <p class="text-sm mb-4">Türkiye'nin en güvenilir araç kiralama hizmeti</p>
+                    <div class="space-y-2 text-sm">
+                        <p class="flex items-center gap-2 footer-phone"><i class="ri-phone-line"></i> <span>0555 123 45 67</span></p>
+                        <p class="flex items-center gap-2 footer-email"><i class="ri-mail-line"></i> <span>info@rentcar.com</span></p>
+                    </div>
+                </div>
+
+                <!-- Hızlı Linkler -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Hızlı Linkler</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#araclar" class="hover:text-primary transition">Araçlarımız</a></li>
+                        <li><a href="#" class="hover:text-primary transition">SSS</a></li>
+                    </ul>
+                </div>
+
+                <!-- Hizmetler -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Hizmetlerimiz</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-primary transition">Günlük Kiralama</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Aylık Kiralama</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Havalimanı Hizmeti</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Sigorta Hizmetleri</a></li>
+                    </ul>
+                </div>
+
+                <!-- Sosyal Medya ve Newsletter -->
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Bizi Takip Edin</h4>
+                    <div class="flex gap-3 mb-6">
+                        <a href="#" class="w-10 h-10 bg-gray-700 hover:bg-primary rounded-full flex items-center justify-center transition"><i class="ri-facebook-line"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 hover:bg-primary rounded-full flex items-center justify-center transition"><i class="ri-instagram-line"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 hover:bg-primary rounded-full flex items-center justify-center transition"><i class="ri-twitter-line"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 hover:bg-primary rounded-full flex items-center justify-center transition"><i class="ri-whatsapp-line"></i></a>
+                    </div>
+                    <p class="text-sm mb-2 font-semibold text-white">Newsletter Bülteni</p>
+                    <form class="flex gap-2">
+                        <input type="email" placeholder="Email adresiniz" class="flex-1 px-3 py-2 bg-gray-700 rounded text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <button type="submit" class="px-4 py-2 bg-primary hover:bg-red-600 text-white rounded font-semibold transition"><i class="ri-send-plane-line"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-700 pt-8">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <p class="text-sm text-center md:text-left">&copy; 2025 RentCar. Tüm hakları saklıdır.</p>
+                    <div class="flex gap-4 justify-center md:justify-end text-sm">
+                        <a href="#" class="hover:text-primary transition">Gizlilik Politikası</a>
+                        <a href="#" class="hover:text-primary transition">Kullanım Şartları</a>
+                        <a href="#" class="hover:text-primary transition">KVKK</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky Mobil Menü (Sadece mobilde görünür) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl shadow-2xl border-t border-gray-200 z-50">
+        <div class="flex justify-between items-center px-1.5 py-1.5">
+
+            <!-- Ana Sayfa -->
+            <a href="#" onclick="scrollToTop(event)" class="flex flex-col items-center flex-1 mx-0.5 py-1 rounded-xl bg-white/40 hover:bg-white/70 text-gray-700 hover:text-primary transition-all active:scale-95">
+                <i class="ri-home-line text-[20px] mb-0.5"></i>
+                <span class="text-[10px] font-medium text-center leading-tight">Ana Sayfa</span>
+            </a>
+
+            <!-- Araçlar -->
+            <a href="#araclar" class="flex flex-col items-center flex-1 mx-0.5 py-1 rounded-xl bg-white/40 hover:bg-white/70 text-gray-700 hover:text-primary transition-all active:scale-95">
+                <i class="ri-car-line text-[20px] mb-0.5"></i>
+                <span class="text-[10px] font-medium text-center leading-tight">Araçlar</span>
+            </a>
+
+            <!-- Hakkımızda -->
+            <a href="/hakkimizda.html" class="flex flex-col items-center flex-1 mx-0.5 py-1 rounded-xl bg-white/40 hover:bg-white/70 text-gray-700 hover:text-primary transition-all active:scale-95">
+                <i class="ri-information-line text-[20px] mb-0.5"></i>
+                <span class="text-[10px] font-medium text-center leading-tight">Hakkımızda</span>
+            </a>
+
+            <!-- Rezervasyon (Ana Sayfa ve Araçlar ile aynı renk) -->
+            <a href="#contact" class="flex flex-col items-center flex-1 mx-0.5 py-1 rounded-xl bg-white/40 hover:bg-white/70 text-gray-700 hover:text-primary transition-all active:scale-95">
+                <i class="ri-calendar-check-line text-[20px] mb-0.5"></i>
+                <span class="text-[10px] font-semibold text-center leading-tight">Rezervasyon</span>
+            </a>
+
+            <!-- WhatsApp -->
+            <a id="mobileWhatsappBtn" href="javascript:void(0)" target="_blank" class="flex flex-col items-center justify-center flex-1 mx-0.5 h-11 rounded-xl bg-emerald-500/90 hover:bg-emerald-500 text-white transition-all active:scale-95">
+                <i class="ri-whatsapp-fill text-[20px]"></i>
+            </a>
+
+            <!-- Telefon (WhatsApp ile aynı boyut: sadece ikon, mavi) -->
+            <a id="mobilePhoneBtn" href="javascript:void(0)" class="flex flex-col items-center justify-center flex-1 mx-0.5 h-11 rounded-xl bg-blue-600/90 hover:bg-blue-700 text-white transition-all active:scale-95">
+                <i class="ri-phone-fill text-[20px]"></i>
+            </a>
+
+        </div>
+    </nav>
+
+    <!-- Sabit WhatsApp Butonu (Desktop için) -->
+    <a id="whatsappFloatingBtn" 
+       href="javascript:void(0)" 
+       target="_blank"
+       class="hidden md:flex fixed bottom-6 right-6 z-50 bg-whatsapp hover:bg-green-600 text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 items-center gap-3 px-6 py-4 font-semibold group">
+        <i class="ri-whatsapp-fill text-3xl"></i>
+        <span class="inline-block">Canlı Destek</span>
+        <!-- Pulse animasyonu -->
+        <span class="absolute top-0 right-0 flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+    </a>
+
+    <script type="module" src="/src/vehicle.js"></script>
+    <script type="module" src="/src/settings.js"></script>
+    <script type="module" src="/src/top-banner.js"></script>
+    <script type="module" src="/src/slider.js"></script>
+    <script type="module" src="/src/quotation.js"></script>
+    <script type="module" src="/src/reservation.js"></script>
+    <script type="module" src="/src/cookies.js"></script>
+	<script type="module" src="/src/index.js"></script>
+    <script src="/src/tracker.js"></script>
+    <script type="module" src="/src/newyear.js"></script>
+</body>
+</html>
